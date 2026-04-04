@@ -1,26 +1,20 @@
 # ===========================================
-# wrangler.toml - Backend Django en Cloudflare Workers
+# wrangler.toml - Cloudflare Worker (Backend API)
 # ===========================================
-# NOTA: Cloudflare Workers tiene soporte limitado para Python/Django
-# Para producción, considera usar: Railway, Render, o Fly.io
 
 name = "gestion-estudiantil-backend"
-main = "index.py"
-compatibility_date = "2025-04-01"
-compatibility_flags = ["python_packages"]
+main = "src/index.js"
+compatibility_date = "2025-04-04"
+
+# Variables de entorno - configurar en Cloudflare Dashboard
+# MONGODB_API_URL: URL del MongoDB Atlas Data API
+# MONGODB_API_KEY: API Key de MongoDB Atlas
+# MONGODB_DB: Nombre de la base de datos (default: App_estudiantil)
 
 [vars]
 ENVIRONMENT = "production"
 
-# Base de datos - MongoDB Atlas (usar variables de entorno en producción)
-# MONGO_HOST, MONGO_USER, MONGO_PASSWORD, MONGO_DB_NAME
-
-# Rutas de interés
+# Rutas personalizadas (opcional - si quieres un dominio personalizado)
 # routes = [
-#   { pattern = "api.tudominio.com/*", zone_name = "tudominio.com" }
+#   { pattern = "api.gestionestudiantil.pages.dev/*", zone_name = "gestionestudiantil.pages.dev" }
 # ]
-
-# KV Namespace para caché si es necesario
-# [[kv_namespaces]]
-# binding = "CACHE"
-# id = "tu-kv-namespace-id"

@@ -2,6 +2,13 @@
 # wrangler.toml - Cloudflare Pages (Frontend Angular)
 # ===========================================
 
-name = "gestion-estudiantil-frontend"
+name = "gestion-estudiantil"
 compatibility_date = "2025-04-04"
-pages_build_output_dir = "./dist/Frontend"
+pages_build_output_dir = "./dist/Frontend/browser"
+
+[vars]
+API_URL = "https://gestion-estudiantil-backend.jonaaxsic.workers.dev"
+
+# Production environment
+[env.production]
+name = "gestion-estudiantil-prod"

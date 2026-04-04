@@ -12,13 +12,14 @@ import {
   Apoderado,
   LoginResponse,
 } from '../../shared/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://127.0.0.1:8000';
+  private readonly baseUrl = environment.apiUrl;
 
   // ============ AUTH ============
   login(email: string, password: string): Observable<LoginResponse> {
