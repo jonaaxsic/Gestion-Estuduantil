@@ -6,9 +6,6 @@ name = "gestion-estudiantil"
 compatibility_date = "2025-04-04"
 pages_build_output_dir = "./dist/Frontend/browser"
 
+# La API está en /api/* del mismo dominio
 [vars]
-API_URL = "https://gestion-estudiantil-backend.jonaaxsic.workers.dev"
-
-# Production environment
-[env.production]
-name = "gestion-estudiantil-prod"
+API_URL = "/api"

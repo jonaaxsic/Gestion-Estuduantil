@@ -1,20 +1,20 @@
 # ===========================================
-# wrangler.toml - Cloudflare Worker (Backend API)
+# wrangler.toml - Cloudflare Worker API
 # ===========================================
 
-name = "gestion-estudiantil-backend"
+name = "gestion-estudiantil-api"
 main = "src/index.js"
 compatibility_date = "2025-04-04"
 
+# Rutas - todas las peticiones /api van al worker
+routes = [
+  { pattern = "gestionestudiantil.pages.dev/api/*", zone_name = "gestionestudiantil.pages.dev" }
+]
+
 # Variables de entorno - configurar en Cloudflare Dashboard
 # MONGODB_API_URL: URL del MongoDB Atlas Data API
-# MONGODB_API_KEY: API Key de MongoDB Atlas
-# MONGODB_DB: Nombre de la base de datos (default: App_estudiantil)
+# MONGODB_API_KEY: API Key de MongoDB Atlas  
+# MONGODB_DB: Nombre de la base de datos
 
 [vars]
 ENVIRONMENT = "production"
-
-# Rutas personalizadas (opcional - si quieres un dominio personalizado)
-# routes = [
-#   { pattern = "api.gestionestudiantil.pages.dev/*", zone_name = "gestionestudiantil.pages.dev" }
-# ]
