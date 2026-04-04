@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects
+# Todas las rutas que no son /api/* van al index.html (SPA)
+/* /index.html 200

@@ -8,9 +8,9 @@ export const onRequest = async (context) => {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // Solo manejar /api/*
+  // Si no es /api/*, pasar al siguiente handler (static)
   if (!path.startsWith("/api")) {
-    return new Response("Not Found", { status: 404 });
+    return;
   }
 
   // Obtener el path después de /api
