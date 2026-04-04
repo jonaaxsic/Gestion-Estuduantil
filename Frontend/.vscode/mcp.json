@@ -1,9 +1,26 @@
 {
-  // For more information, visit: https://angular.dev/ai/mcp
+  // Cloudflare MCP Servers - Para desplegar y gestionar el proyecto
+  // Documentación: https://github.com/cloudflare/mcp-server-cloudflare
   "servers": {
     "angular-cli": {
       "command": "npx",
       "args": ["-y", "@angular/cli", "mcp"]
+    },
+    "cloudflare-observability": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://observability.mcp.cloudflare.com/mcp"]
+    },
+    "cloudflare-ai-gateway": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://ai-gateway.mcp.cloudflare.com/mcp"]
+    },
+    "cloudflare-workers-builds": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://builds.mcp.cloudflare.com/mcp"]
+    },
+    "cloudflare-bindings": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://bindings.mcp.cloudflare.com/mcp"]
     }
   }
 }

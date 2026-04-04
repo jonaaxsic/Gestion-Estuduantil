@@ -1,0 +1,7 @@
+# ===========================================
+# wrangler.toml - Cloudflare Pages (Frontend Angular)
+# ===========================================
+
+name = "gestion-estudiantil-frontend"
+compatibility_date = "2025-04-04"
+pages_build_output_dir = "./dist/Frontend"
