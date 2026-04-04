@@ -11,10 +11,8 @@ routes = [
   { pattern = "gestionestudiantil.pages.dev/api/*", zone_name = "gestionestudiantil.pages.dev" }
 ]
 
-# Variables de entorno - configurar en Cloudflare Dashboard
-# MONGODB_API_URL: URL del MongoDB Atlas Data API
-# MONGODB_API_KEY: API Key de MongoDB Atlas  
-# MONGODB_DB: Nombre de la base de datos
+# Este worker funciona sin MongoDB (usa datos de ejemplo)
+# Para conectar MongoDB más adelante, solo agregá las variables en Settings
 
 [vars]
 ENVIRONMENT = "production"
