@@ -33,16 +33,26 @@ def get_required_env(var_name, description=""):
     return value
 
 
-# MongoDB Configuration (usar variables de entorno para producción)
-MONGO_HOST = os.environ.get("MONGO_HOST", "main-database.rpaamyh.mongodb.net")
-MONGO_USER = get_required_env("MONGO_USER", "Usuario de MongoDB Atlas")
-MONGO_PASSWORD = get_required_env("MONGO_PASSWORD", "Password de MongoDB Atlas")
-MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", "App_estudiantil")
-MONGO_PORT = int(os.environ.get("MONGO_PORT", 27017))
+# MongoDB Configuration - Soporta URI directa o variables separadas
+# Opción 1: Usar MONGO_URI directa (recomendado para producción)
+MONGO_URI = os.environ.get("MONGO_URI")
 
-# Build MongoDB URI
-password = quote_plus(MONGO_PASSWORD)
-MONGO_URI = f"mongodb+srv://{MONGO_USER}:{password}@{MONGO_HOST}/?appName=Main-Database"
+if MONGO_URI:
+    # Si se proporciona URI directa, usarla
+    pass
+else:
+    # Opción 2: Usar variables separadas (desarrollo local)
+    MONGO_HOST = os.environ.get("MONGO_HOST", "main-database.rpaamyh.mongodb.net")
+    MONGO_USER = get_required_env("MONGO_USER", "Usuario de MongoDB Atlas")
+    MONGO_PASSWORD = get_required_env("MONGO_PASSWORD", "Password de MongoDB Atlas")
+    MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", "App_estudiantil")
+    MONGO_PORT = int(os.environ.get("MONGO_PORT", 27017))
+
+    # Build MongoDB URI
+    password = quote_plus(MONGO_PASSWORD)
+    MONGO_URI = (
+        f"mongodb+srv://{MONGO_USER}:{password}@{MONGO_HOST}/?appName=Main-Database"
+    )
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
