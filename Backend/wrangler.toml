@@ -1,0 +1,18 @@
+# ===========================================
+# wrangler.toml - Backend Django en Cloudflare Pages
+# ===========================================
+
+name = "gestion-estudiantil-backend"
+compatibility_date = "2025-04-04"
+
+#cloudflare pages con python
+pages_build_output_dir = ".output"
+
+[vars]
+ENVIRONMENT = "production"
+
+# Configuración de Workers Functions para proxy
+# Los requests a /api/* se enrutarán al backend
+
+# Variables de entorno para MongoDB Atlas
+# (se configuran en Cloudflare Dashboard > Workers > Settings > Variables)
