@@ -21,13 +21,13 @@ Aplicación web para la gestión académica institucional que permite digitaliza
 
 ## 🛠️ Tecnologías
 
-| Categoría | Tecnología |
-|-----------|-------------|
-| **Frontend** | Angular 19 + Angular Material |
-| **Backend** | Cloudflare Workers (Serverless) |
-| **Base de Datos** | MongoDB Atlas |
-| **Despliegue** | Cloudflare Pages + Workers |
-| **Desarrollo** | TypeScript, Python, Django |
+| Categoría         | Tecnología                      |
+| ----------------- | ------------------------------- |
+| **Frontend**      | Angular 19 + Angular Material   |
+| **Backend**       | Cloudflare Workers (Serverless) |
+| **Base de Datos** | MongoDB Atlas                   |
+| **Despliegue**    | Cloudflare Pages + Workers      |
+| **Desarrollo**    | TypeScript, Python, Django      |
 
 ---
 
@@ -53,13 +53,6 @@ Aplicación web para la gestión académica institucional que permite digitaliza
 ## 📬 Contacto
 
 **Jonathan Anomisar**
+
 - 📧 jonathan.anomisar@gmail.com
 - 💻 [GitHub](https://github.com/jonaaxsic)
-
----
-
-<div align="center">
-
-✨ Proyecto en producción | 2026
-
-</div>
