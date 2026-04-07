@@ -1,0 +1,8 @@
+{
+  "name": "gestion-estudiantil-api",
+  "main": "worker.js",
+  "compatibility_date": "2025-04-04",
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
+}
