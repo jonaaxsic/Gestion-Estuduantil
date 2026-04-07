@@ -11,8 +11,11 @@ pages_build_output_dir = "./dist/cloudflare/browser"
 # Enable Node.js compatibility for Pages Functions
 compatibility_flags = ["nodejs_compat"]
 
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "gestion-estudiantil-db"
+database_id = "c5220804-71fb-4a2d-a6e8-8bb4f030a77b"
+
 [vars]
 ENVIRONMENT = "production"
-
-# Backend URL for API proxy
-BACKEND_URL = "https://gestion-estudiantil-backend.onrender.com"

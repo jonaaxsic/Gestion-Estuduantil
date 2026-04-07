@@ -5,9 +5,11 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:cloudflare": "ng build --configuration cloudflare",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "deploy": "wrangler pages project deploy . --branch production"
+    "deploy": "wrangler pages project deploy . --branch production",
+    "deploy:direct": "npm run build:cloudflare && wrangler pages deploy ./dist/cloudflare/browser --branch production"
   },
   "private": true,
   "engines": {
