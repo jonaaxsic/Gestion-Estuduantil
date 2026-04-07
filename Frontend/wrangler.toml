@@ -6,11 +6,6 @@ name = "gestion-estudiantil"
 compatibility_date = "2025-04-04"
 pages_build_output_dir = "./dist/cloudflare/browser"
 
-# Rutas - API maneja /api/*
-routes = [
-  { pattern = "gestionestudiantil.pages.dev/api/*", zone_name = "gestionestudiantil.pages.dev" }
-]
-
 # Variables de entorno para la API
 [vars]
 API_URL = "/api"
