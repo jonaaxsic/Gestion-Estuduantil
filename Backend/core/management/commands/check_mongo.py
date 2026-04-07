@@ -3,7 +3,7 @@ Management command to verify MongoDB connection
 """
 
 from django.core.management.base import BaseCommand
-from backend.core.database import get_client, get_db
+from core.database import get_client, get_db
 
 
 class Command(BaseCommand):

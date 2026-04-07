@@ -87,7 +87,14 @@ firebase-config.js
 config.js
 secreto*
 api_key*
+Backend.err*
+conexion-mongodb.txt*
 
 # -------- DOCKER --------
 *.dockerignore
 docker-compose.override.yml
+
+
+#--------otros-----
+Backend.err
+conexion-mongodb.txt

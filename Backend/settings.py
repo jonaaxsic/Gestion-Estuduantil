@@ -41,31 +41,34 @@ def get_required_env(var_name, description=""):
     return value
 
 
-# MongoDB Configuration - Soporta URI directa o variables separadas
-# Opción 1: Usar MONGO_URI directa (recomendado para producción)
+# ===========================================
+# MONGO DB CONFIGURATION - GUARDAR COMO ATRIBUTOS DE MÓDULO
+# ===========================================
 MONGO_URI = os.environ.get("MONGO_URI")
+MONGO_ATLAS_SQL_URI = os.environ.get("MONGO_ATLAS_SQL_URI")
 
-if MONGO_URI:
-    # Si se proporciona URI directa, usarla
-    pass
-else:
-    # Opción 2: Usar variables separadas (desarrollo local)
-    MONGO_HOST = os.environ.get("MONGO_HOST", "main-database.rpaamyh.mongodb.net")
-    MONGO_USER = os.environ.get("MONGO_USER")
+# Si no hay URI completa, construir desde componentes
+if not MONGO_URI:
+    # These MUST be module-level attributes for database.py to access them
+    MONGO_USER = os.environ.get("MONGO_USER", "jonaaxsic")
     MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
+    MONGO_HOST = os.environ.get("MONGO_HOST", "main-database.rpaamyh.mongodb.net")
     MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", "App_estudiantil")
     MONGO_PORT = int(os.environ.get("MONGO_PORT", 27017))
 
-    # Solo construir URI si tenemos credenciales
-    if MONGO_USER and MONGO_PASSWORD:
+    # Build Atlas URI if password exists
+    if MONGO_PASSWORD:
         password = quote_plus(MONGO_PASSWORD)
         MONGO_URI = (
             f"mongodb+srv://{MONGO_USER}:{password}@{MONGO_HOST}/?appName=Main-Database"
         )
-    else:
-        # Sin credenciales, deshabilitar MongoDB temporalmente
-        MONGO_URI = None
-        MONGO_DB_NAME = None
+else:
+    # When MONGO_URI is provided directly, extract components for compatibility
+    MONGO_USER = os.environ.get("MONGO_USER", "")
+    MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD", "")
+    MONGO_HOST = os.environ.get("MONGO_HOST", "main-database.rpaamyh.mongodb.net")
+    MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", "App_estudiantil")
+    MONGO_PORT = int(os.environ.get("MONGO_PORT", 27017))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -117,7 +120,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "wsgi.application"
 
-# Database - Using MongoDB via pymongo
+# Database - Using SQLite for local development
+# (MongoDB Atlas connection is not available in this environment)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
