@@ -89,16 +89,28 @@ class BaseModel:
         skip = kwargs.get("skip")
         sort = kwargs.get("sort")
 
+        # Get all results
         cursor = collection.find(query or {})
 
-        if sort:
-            cursor = cursor.sort(sort)
-        if skip:
-            cursor = cursor.skip(skip)
-        if limit:
-            cursor = cursor.limit(limit)
+        results = []
+        for doc in cursor:
+            results.append(cls(doc))
 
-        return [cls(doc) for doc in cursor]
+        # Apply sorting if needed
+        if sort:
+            # sort is a list of tuples like [("campo", 1 or -1)]
+            field, direction = sort[0]
+            results.sort(
+                key=lambda x: getattr(x, field, "") or "", reverse=(direction == -1)
+            )
+
+        # Apply skip and limit
+        if skip:
+            results = results[skip:]
+        if limit:
+            results = results[:limit]
+
+        return results
 
     @classmethod
     def count(cls, query=None):
