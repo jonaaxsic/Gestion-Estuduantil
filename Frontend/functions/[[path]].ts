@@ -1,26 +1,7 @@
 /**
- * Cloudflare Workers API - Gestión Estudiantil
- * Conecta directamente a MongoDB Atlas usando Data API
- * 
- * Para configurar:
- * 1. Ve a MongoDB Atlas > Data API
- * 2. Crea una Data API key
- * 3. Configura las variables en Cloudflare Dashboard > Workers > Settings > Variables
- *    - ATLAS_DATA_API_KEY: tu-api-key
- *    - ATLAS_DATA_API_URL: https://data.mongodb-api.com/data/<cluster>/endpoint/data/beta
- *    - ATLAS_DB_NAME: App_estudiantil
+ * Cloudflare Pages Function API - Gestión Estudiantil
+ * API integrada con datos de ejemplo para funcionamiento inmediato
  */
-
-// ===========================================
-// CONFIGURACIÓN - Variables de entorno
-// ===========================================
-const ATLAS_DATA_API_KEY = 'rWnGRFxWviVPHxqMMPMeqIuK8K6s9O8O9O9O9O9O9O9O9O9O9O9O';
-const ATLAS_DATA_API_URL = 'https://data.mongodb-api.com/data/main-database/endpoint/data/beta';
-const ATLAS_DB_NAME = 'App_estudiantil';
-
-const getEnv = (key, fallback) => {
-  return typeof globalThis !== 'undefined' ? (globalThis[key] || fallback) : fallback;
-};
 
 // ===========================================
 // CORS HEADERS
@@ -29,6 +10,45 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization"
+};
+
+// ===========================================
+// DATOS DE EJEMPLO
+// ===========================================
+const mockData = {
+  usuarios: [
+    { _id: "1", nombre: "Admin", apellido: "Sistema", email: "admin@colegio.cl", rol: "admin", password: "admin", activo: true },
+    { _id: "2", nombre: "Juan", apellido: "Pérez", email: "juan@colegio.cl", rol: "docente", password: "123", activo: true },
+    { _id: "3", nombre: "María", apellido: "García", email: "maria@colegio.cl", rol: "admin", password: "123", activo: true },
+  ],
+  estudiantes: [
+    { _id: "1", nombre: "Pedro", apellido: "González", rut: "12345678-9", curso_id: "1" },
+    { _id: "2", nombre: "Ana", apellido: "López", rut: "98765432-1", curso_id: "1" },
+  ],
+  cursos: [
+    { _id: "1", nombre: "1° Básico A", nivel: "1° Básico", ano: 2025 },
+    { _id: "2", nombre: "2° Básico A", nivel: "2° Básico", ano: 2025 },
+  ],
+  asistencia: [
+    { _id: "1", estudiante_id: "1", curso_id: "1", fecha: "2026-04-07", presente: true },
+  ],
+  evaluaciones: [
+    { _id: "1", curso_id: "1", materia: "Matemáticas", titulo: "Prueba 1", fecha: "2026-04-10" },
+  ],
+  anotaciones: [
+    { _id: "1", estudiante_id: "1", tipo: "positiva", descripcion: "Buena participación", fecha: "2026-04-07" },
+  ],
+  reuniones: [
+    { _id: "1", curso_id: "1", fecha: "2026-04-20", hora: "18:00", lugar: "Sala de Padres" },
+  ],
+  apoderados: [
+    { _id: "1", nombre: "Roberto", apellido: "González", telefono: "+56912345678", estudiante_id: "1" },
+  ]
+};
+
+// Pages Function export format
+export const onRequest = async (context) => {
+  return handleRequest(context.request);
 };
 
 // ===========================================
@@ -43,84 +63,6 @@ function jsonResponse(data, status = 200) {
 
 function errorResponse(message, status = 400) {
   return jsonResponse({ error: message }, status);
-}
-
-// ===========================================
-// MONGODB ATLAS DATA API
-// ===========================================
-async function mongoFind(collection, filter = {}, projection = null) {
-  const body = { collection, filter };
-  if (projection) body.projection = projection;
-  
-  const res = await fetch(`${ATLAS_DATA_API_URL}/action/find`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': ATLAS_DATA_API_KEY
-    },
-    body: JSON.stringify(body)
-  });
-  
-  const data = await res.json();
-  return data.documents || [];
-}
-
-async function mongoFindOne(collection, filter = {}) {
-  const res = await fetch(`${ATLAS_DATA_API_URL}/action/findOne`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': ATLAS_DATA_API_KEY
-    },
-    body: JSON.stringify({ collection, filter })
-  });
-  
-  const data = await res.json();
-  return data.document;
-}
-
-async function mongoInsertOne(collection, document) {
-  const res = await fetch(`${ATLAS_DATA_API_URL}/action/insertOne`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': ATLAS_DATA_API_KEY
-    },
-    body: JSON.stringify({ collection, document })
-  });
-  
-  return res.json();
-}
-
-async function mongoUpdateOne(collection, filter, update) {
-  const res = await fetch(`${ATLAS_DATA_API_URL}/action/updateOne`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': ATLAS_DATA_API_KEY
-    },
-    body: JSON.stringify({ collection, filter, update })
-  });
-  
-  return res.json();
-}
-
-async function mongoDeleteOne(collection, filter) {
-  const res = await fetch(`${ATLAS_DATA_API_URL}/action/deleteOne`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Request-Headers': '*',
-      'api-key': ATLAS_DATA_API_KEY
-    },
-    body: JSON.stringify({ collection, filter })
-  });
-  
-  return res.json();
 }
 
 // ===========================================
@@ -141,7 +83,7 @@ async function handleRequest(request) {
     return jsonResponse({ 
       status: "ok", 
       message: "API Backend - Gestión Estudiantil",
-      mongo: "connected",
+      mode: "demo",
       docs: "Endpoints: /auth/login, /usuarios, /estudiantes, /cursos, /asistencia, /evaluaciones, /anotaciones, /reuniones, /apoderados"
     });
   }
@@ -158,8 +100,8 @@ async function handleRequest(request) {
         return errorResponse("Email y password requeridos", 400);
       }
       
-      // Buscar usuario en MongoDB
-      const usuario = await mongoFindOne("usuarios", { email, activo: true });
+      // Buscar usuario en datos de ejemplo
+      const usuario = mockData.usuarios.find(u => u.email === email && u.activo);
       
       if (usuario && usuario.password === password) {
         const { password: _, ...userSafe } = usuario;
@@ -173,34 +115,8 @@ async function handleRequest(request) {
     // ===========================================
     if (path === "/usuarios" || path === "/usuarios/") {
       if (method === "GET") {
-        const usuarios = await mongoFind("usuarios", {});
-        // Remover passwords
-        const safe = usuarios.map(({ password, ...u }) => u);
-        return jsonResponse(safe);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("usuarios", { ...data, activo: true });
-        return jsonResponse({ id: result.insertedId }, 201);
-      }
-    }
-    
-    if (path.match(/^\/usuarios\/[^\/]+$/)) {
-      const id = path.split("/")[2];
-      if (method === "GET") {
-        const usuario = await mongoFindOne("usuarios", { _id: { $oid: id } });
-        if (!usuario) return errorResponse("Usuario no encontrado", 404);
-        const { password, ...u } = usuario;
-        return jsonResponse(u);
-      }
-      if (method === "PUT") {
-        const data = await request.json();
-        await mongoUpdateOne("usuarios", { _id: { $oid: id } }, { $set: data });
-        return jsonResponse({ success: true });
-      }
-      if (method === "DELETE") {
-        await mongoDeleteOne("usuarios", { _id: { $oid: id } });
-        return jsonResponse({ success: true });
+        const usuarios = mockData.usuarios.map(({ password, ...u }) => u);
+        return jsonResponse(usuarios);
       }
     }
 
@@ -210,32 +126,11 @@ async function handleRequest(request) {
     if (path === "/estudiantes" || path === "/estudiantes/") {
       if (method === "GET") {
         const cursoId = url.searchParams.get("curso_id");
-        const filter = cursoId ? { curso_id: cursoId } : {};
-        const estudiantes = await mongoFind("estudiantes", filter);
+        let estudiantes = mockData.estudiantes;
+        if (cursoId) {
+          estudiantes = estudiantes.filter(e => e.curso_id === cursoId);
+        }
         return jsonResponse(estudiantes);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("estudiantes", data);
-        return jsonResponse({ id: result.insertedId }, 201);
-      }
-    }
-    
-    if (path.match(/^\/estudiantes\/[^\/]+$/)) {
-      const id = path.split("/")[2];
-      if (method === "GET") {
-        const estudiante = await mongoFindOne("estudiantes", { _id: { $oid: id } });
-        if (!estudiante) return errorResponse("Estudiante no encontrado", 404);
-        return jsonResponse(estudiante);
-      }
-      if (method === "PUT") {
-        const data = await request.json();
-        await mongoUpdateOne("estudiantes", { _id: { $oid: id } }, { $set: data });
-        return jsonResponse({ success: true });
-      }
-      if (method === "DELETE") {
-        await mongoDeleteOne("estudiantes", { _id: { $oid: id } });
-        return jsonResponse({ success: true });
       }
     }
 
@@ -244,22 +139,7 @@ async function handleRequest(request) {
     // ===========================================
     if (path === "/cursos" || path === "/cursos/") {
       if (method === "GET") {
-        const cursos = await mongoFind("cursos", {});
-        return jsonResponse(cursos);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("cursos", data);
-        return jsonResponse({ id: result.insertedId }, 201);
-      }
-    }
-    
-    if (path.match(/^\/cursos\/[^\/]+$/)) {
-      const id = path.split("/")[2];
-      if (method === "GET") {
-        const curso = await mongoFindOne("cursos", { _id: { $oid: id } });
-        if (!curso) return errorResponse("Curso no encontrado", 404);
-        return jsonResponse(curso);
+        return jsonResponse(mockData.cursos);
       }
     }
 
@@ -270,16 +150,10 @@ async function handleRequest(request) {
       if (method === "GET") {
         const estudianteId = url.searchParams.get("estudiante_id");
         const cursoId = url.searchParams.get("curso_id");
-        let filter = {};
-        if (estudianteId) filter.estudiante_id = estudianteId;
-        if (cursoId) filter.curso_id = cursoId;
-        const asistencia = await mongoFind("asistencia", filter);
+        let asistencia = mockData.asistencia;
+        if (estudianteId) asistencia = asistencia.filter(a => a.estudiante_id === estudianteId);
+        if (cursoId) asistencia = asistencia.filter(a => a.curso_id === cursoId);
         return jsonResponse(asistencia);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("asistencia", data);
-        return jsonResponse({ id: result.insertedId }, 201);
       }
     }
 
@@ -289,14 +163,9 @@ async function handleRequest(request) {
     if (path === "/evaluaciones" || path === "/evaluaciones/") {
       if (method === "GET") {
         const cursoId = url.searchParams.get("curso_id");
-        const filter = cursoId ? { curso_id: cursoId } : {};
-        const evaluaciones = await mongoFind("evaluaciones", filter);
+        let evaluaciones = mockData.evaluaciones;
+        if (cursoId) evaluaciones = evaluaciones.filter(e => e.curso_id === cursoId);
         return jsonResponse(evaluaciones);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("evaluaciones", data);
-        return jsonResponse({ id: result.insertedId }, 201);
       }
     }
 
@@ -306,14 +175,9 @@ async function handleRequest(request) {
     if (path === "/anotaciones" || path === "/anotaciones/") {
       if (method === "GET") {
         const estudianteId = url.searchParams.get("estudiante_id");
-        const filter = estudianteId ? { estudiante_id: estudianteId } : {};
-        const anotaciones = await mongoFind("anotaciones", filter);
+        let anotaciones = mockData.anotaciones;
+        if (estudianteId) anotaciones = anotaciones.filter(a => a.estudiante_id === estudianteId);
         return jsonResponse(anotaciones);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("anotaciones", data);
-        return jsonResponse({ id: result.insertedId }, 201);
       }
     }
 
@@ -322,13 +186,7 @@ async function handleRequest(request) {
     // ===========================================
     if (path === "/reuniones" || path === "/reuniones/") {
       if (method === "GET") {
-        const reuniones = await mongoFind("reuniones", {});
-        return jsonResponse(reuniones);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("reuniones", data);
-        return jsonResponse({ id: result.insertedId }, 201);
+        return jsonResponse(mockData.reuniones);
       }
     }
 
@@ -338,14 +196,9 @@ async function handleRequest(request) {
     if (path === "/apoderados" || path === "/apoderados/") {
       if (method === "GET") {
         const estudianteId = url.searchParams.get("estudiante_id");
-        const filter = estudianteId ? { estudiante_id: estudianteId } : {};
-        const apoderados = await mongoFind("apoderados", filter);
+        let apoderados = mockData.apoderados;
+        if (estudianteId) apoderados = apoderos.filter(a => a.estudiante_id === estudianteId);
         return jsonResponse(apoderados);
-      }
-      if (method === "POST") {
-        const data = await request.json();
-        const result = await mongoInsertOne("apoderados", data);
-        return jsonResponse({ id: result.insertedId }, 201);
       }
     }
 
@@ -355,12 +208,3 @@ async function handleRequest(request) {
     return errorResponse("Error: " + e.message, 500);
   }
 }
-
-// ===========================================
-// WORKER ENTRY POINT
-// ===========================================
-export default {
-  async fetch(request, env) {
-    return handleRequest(request);
-  }
-};

@@ -1,5 +1,5 @@
-// URL de la API - API Worker separada
+// URL de la API - misma aplicación
 export const environment = {
   production: true,
-  apiUrl: 'https://gestion-estudiantil-api.pages.dev/api'
+  apiUrl: '/api'
 };

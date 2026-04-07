@@ -1,4 +1,4 @@
-# Cloudflare Pages redirects
-# SPA routing configuration
-# NOTA: La API está desplegada como Worker separado
-/!* /index.html 200
+# Cloudflare Pages SPA redirects
+# All non-file routes go to index.html for Angular routing
+/index.html 200
+/cloudflare 200
