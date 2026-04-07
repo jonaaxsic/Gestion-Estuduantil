@@ -7,8 +7,48 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding: 20px;
+  padding: 16px;
   position: relative;
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 12px;
+  }
+  
+  .login-card {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+  
+  .login-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+  }
+  
+  .login-icon .material-icons {
+    font-size: 28px;
+  }
+  
+  .login-title {
+    font-size: 1.25rem;
+  }
+  
+  .login-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .form-input {
+    padding: 14px 12px 14px 42px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .login-btn {
+    height: 48px;
+    font-size: 1rem;
+  }
 }
 
 .login-container::before {
