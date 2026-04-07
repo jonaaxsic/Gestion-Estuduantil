@@ -56,20 +56,22 @@ def get_client():
 
             # Configure client based on connection type
             if "+srv" in uri:
-                # SRV connection (standard Atlas)
+                # SRV connection (standard Atlas) with TLS options
                 _client = MongoClient(
                     uri,
-                    serverSelectionTimeoutMS=10000,
-                    connectTimeoutMS=10000,
+                    serverSelectionTimeoutMS=15000,
+                    connectTimeoutMS=15000,
                     retryWrites=True,
                     retryReads=True,
+                    tls=True,
+                    tlsAllowInvalidCertificates=True,
                 )
             else:
                 # Standard MongoDB connection
                 _client = MongoClient(
                     uri,
-                    serverSelectionTimeoutMS=10000,
-                    connectTimeoutMS=10000,
+                    serverSelectionTimeoutMS=15000,
+                    connectTimeoutMS=15000,
                     retryWrites=True,
                     retryReads=True,
                 )
