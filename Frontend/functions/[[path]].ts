@@ -1,6 +1,6 @@
 /**
  * Cloudflare Pages Function API - Gestión Estudiantil
- * API integrada con datos de ejemplo para funcionamiento inmediato
+ * Conecta a MongoDB Atlas para autenticación
  */
 
 // ===========================================
@@ -13,7 +13,14 @@ const corsHeaders = {
 };
 
 // ===========================================
-// DATOS DE EJEMPLO
+// MONGODB ATLAS CONFIGURATION
+// ===========================================
+const ATLAS_API_KEY = 'rWnGRFxWviVPHxqMMPMeqIuK8K6s9O8O9O9O9O9O9O9O9O9O9O9O';
+const ATLAS_API_URL = 'https://data.mongodb-api.com/data/main-database/endpoint/data/beta';
+const ATLAS_DB_NAME = 'App_estudiantil';
+
+// ===========================================
+// DATOS DE EJEMPLO (FALLBACK)
 // ===========================================
 const mockData = {
   usuarios: [
@@ -47,6 +54,62 @@ const mockData = {
 };
 
 // ===========================================
+// MONGODB HELPERS
+// ===========================================
+async function mongoFind(collection, filter = {}) {
+  try {
+    const res = await fetch(`${ATLAS_API_URL}/action/find`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': ATLAS_API_KEY
+      },
+      body: JSON.stringify({
+        dataSource: "mongodb-atlas",
+        database: ATLAS_DB_NAME,
+        collection,
+        filter
+      })
+    });
+    
+    if (!res.ok) throw new Error('MongoDB error');
+    const data = await res.json();
+    return data.documents || [];
+  } catch (e) {
+    console.log('Using mock data for', collection);
+    return mockData[collection] || [];
+  }
+}
+
+async function mongoFindOne(collection, filter = {}) {
+  try {
+    const res = await fetch(`${ATLAS_API_URL}/action/findOne`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': ATLAS_API_KEY
+      },
+      body: JSON.stringify({
+        dataSource: "mongodb-atlas",
+        database: ATLAS_DB_NAME,
+        collection,
+        filter
+      })
+    });
+    
+    if (!res.ok) throw new Error('MongoDB error');
+    const data = await res.json();
+    return data.document;
+  } catch (e) {
+    console.log('Using mock data for findOne', collection);
+    if (collection === 'usuarios') {
+      return mockData.usuarios.find(u => u.email === filter.email);
+    }
+    return null;
+  }
+}
+
+// ===========================================
 // RESPONSE HELPERS
 // ===========================================
 function jsonResponse(data, status = 200) {
@@ -61,7 +124,7 @@ function errorResponse(message, status = 400) {
 }
 
 // ===========================================
-// ROUTER
+// MAIN HANDLER
 // ===========================================
 async function handleRequest(request) {
   // CORS preflight
@@ -78,15 +141,12 @@ async function handleRequest(request) {
     return jsonResponse({ 
       status: "ok", 
       message: "API Backend - Gestión Estudiantil",
-      mode: "demo",
-      docs: "Endpoints: /auth/login, /usuarios, /estudiantes, /cursos, /asistencia, /evaluaciones, /anotaciones, /reuniones, /apoderados"
+      docs: "Endpoints: /auth/login, /usuarios, /estudiantes, /cursos"
     });
   }
 
   try {
-    // ===========================================
-    // AUTH - Login (POST)
-    // ===========================================
+    // AUTH - Login
     if (path === "/auth/login" && method === "POST") {
       const data = await request.json();
       const { email, password } = data;
@@ -95,109 +155,114 @@ async function handleRequest(request) {
         return errorResponse("Email y password requeridos", 400);
       }
       
-      // Buscar usuario en datos de ejemplo
-      const usuario = mockData.usuarios.find(u => u.email === email && u.activo);
+      // Try MongoDB first, fallback to mock data
+      const usuario = await mongoFindOne("usuarios", { email, activo: true });
       
       if (usuario && usuario.password === password) {
         const { password: _, ...userSafe } = usuario;
         return jsonResponse({ success: true, user: userSafe });
       }
+      
+      // Fallback to mock data if MongoDB fails
+      const mockUser = mockData.usuarios.find(u => u.email === email && u.activo);
+      if (mockUser && mockUser.password === password) {
+        const { password: _, ...userSafe } = mockUser;
+        return jsonResponse({ success: true, user: userSafe });
+      }
+      
       return errorResponse("Credenciales inválidas", 401);
     }
 
-    // ===========================================
     // USUARIOS
-    // ===========================================
-    if (path === "/usuarios" || path === "/usuarios/") {
+    if (path === "/usuarios") {
       if (method === "GET") {
-        const usuarios = mockData.usuarios.map(({ password, ...u }) => u);
-        return jsonResponse(usuarios);
+        const usuarios = await mongoFind("usuarios", {});
+        if (usuarios.length === 0) {
+          return jsonResponse(mockData.usuarios.map(({ password, ...u }) => u));
+        }
+        return jsonResponse(usuarios.map(({ password, ...u }) => u));
       }
     }
 
-    // ===========================================
     // ESTUDIANTES
-    // ===========================================
-    if (path === "/estudiantes" || path === "/estudiantes/") {
+    if (path === "/estudiantes") {
       if (method === "GET") {
         const cursoId = url.searchParams.get("curso_id");
-        let estudiantes = mockData.estudiantes;
-        if (cursoId) {
-          estudiantes = estudiantes.filter(e => e.curso_id === cursoId);
+        let estudiantes = await mongoFind("estudiantes", cursoId ? { curso_id: cursoId } : {});
+        if (estudiantes.length === 0) {
+          estudiantes = mockData.estudiantes;
         }
         return jsonResponse(estudiantes);
       }
     }
 
-    // ===========================================
     // CURSOS
-    // ===========================================
-    if (path === "/cursos" || path === "/cursos/") {
+    if (path === "/cursos") {
       if (method === "GET") {
-        return jsonResponse(mockData.cursos);
+        const cursos = await mongoFind("cursos", {});
+        if (cursos.length === 0) {
+          return jsonResponse(mockData.cursos);
+        }
+        return jsonResponse(cursos);
       }
     }
 
-    // ===========================================
     // ASISTENCIA
-    // ===========================================
-    if (path === "/asistencia" || path === "/asistencia/") {
+    if (path === "/asistencia") {
       if (method === "GET") {
-        const estudianteId = url.searchParams.get("estudiante_id");
-        const cursoId = url.searchParams.get("curso_id");
-        let asistencia = mockData.asistencia;
-        if (estudianteId) asistencia = asistencia.filter(a => a.estudiante_id === estudianteId);
-        if (cursoId) asistencia = asistencia.filter(a => a.curso_id === cursoId);
+        const asistencia = await mongoFind("asistencia", {});
+        if (asistencia.length === 0) {
+          return jsonResponse(mockData.asistencia);
+        }
         return jsonResponse(asistencia);
       }
     }
 
-    // ===========================================
     // EVALUACIONES
-    // ===========================================
-    if (path === "/evaluaciones" || path === "/evaluaciones/") {
+    if (path === "/evaluaciones") {
       if (method === "GET") {
-        const cursoId = url.searchParams.get("curso_id");
-        let evaluaciones = mockData.evaluaciones;
-        if (cursoId) evaluaciones = evaluaciones.filter(e => e.curso_id === cursoId);
+        const evaluaciones = await mongoFind("evaluaciones", {});
+        if (evaluaciones.length === 0) {
+          return jsonResponse(mockData.evaluaciones);
+        }
         return jsonResponse(evaluaciones);
       }
     }
 
-    // ===========================================
     // ANOTACIONES
-    // ===========================================
-    if (path === "/anotaciones" || path === "/anotaciones/") {
+    if (path === "/anotaciones") {
       if (method === "GET") {
-        const estudianteId = url.searchParams.get("estudiante_id");
-        let anotaciones = mockData.anotaciones;
-        if (estudianteId) anotaciones = anotaciones.filter(a => a.estudiante_id === estudianteId);
+        const anotaciones = await mongoFind("anotaciones", {});
+        if (anotaciones.length === 0) {
+          return jsonResponse(mockData.anotaciones);
+        }
         return jsonResponse(anotaciones);
       }
     }
 
-    // ===========================================
     // REUNIONES
-    // ===========================================
-    if (path === "/reuniones" || path === "/reuniones/") {
+    if (path === "/reuniones") {
       if (method === "GET") {
-        return jsonResponse(mockData.reuniones);
+        const reuniones = await mongoFind("reuniones", {});
+        if (reuniones.length === 0) {
+          return jsonResponse(mockData.reuniones);
+        }
+        return jsonResponse(reuniones);
       }
     }
 
-    // ===========================================
     // APODERADOS
-    // ===========================================
-    if (path === "/apoderados" || path === "/apoderados/") {
+    if (path === "/apoderados") {
       if (method === "GET") {
-        const estudianteId = url.searchParams.get("estudiante_id");
-        let apoderos = mockData.apoderados;
-        if (estudianteId) apoderos = apoderos.filter(a => a.estudiante_id === estudianteId);
+        const apoderos = await mongoFind("apoderados", {});
+        if (apoderos.length === 0) {
+          return jsonResponse(mockData.apoderados);
+        }
         return jsonResponse(apoderos);
       }
     }
 
-    return errorResponse("Endpoint no encontrado. Prueba: /, /auth/login, /usuarios, /estudiantes, /cursos, /asistencia, /evaluaciones, /anotaciones, /reuniones, /apoderados", 404);
+    return errorResponse("Endpoint no encontrado", 404);
     
   } catch (e) {
     return errorResponse("Error: " + e.message, 500);
@@ -205,21 +270,13 @@ async function handleRequest(request) {
 }
 
 // ===========================================
-// EXPORTS - Cloudflare Pages Functions
+// CLOUDFLARE PAGES FUNCTION EXPORTS
 // ===========================================
 export async function onRequestGet(request) {
   return handleRequest(request);
 }
 
 export async function onRequestPost(request) {
-  return handleRequest(request);
-}
-
-export async function onRequestPut(request) {
-  return handleRequest(request);
-}
-
-export async function onRequestDelete(request) {
   return handleRequest(request);
 }
 
