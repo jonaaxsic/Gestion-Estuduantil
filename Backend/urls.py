@@ -17,6 +17,7 @@ urlpatterns = [
     path("", api_root, name="api-root"),
     # Authentication
     path("auth/login", views.login_view, name="login"),
+    path("auth/create-test-user", views.create_test_user, name="create-test-user"),
     # CRUD endpoints - con y sin trailing slash
     path("usuarios", views.UsuarioList.as_view(), name="usuario-list"),
     path("usuarios/", views.UsuarioList.as_view(), name="usuario-list-slash"),

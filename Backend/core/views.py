@@ -130,6 +130,34 @@ def login_view(request):
     )
 
 
+@api_view(["POST"])
+def create_test_user(request):
+    """Crear usuario de prueba - solo para desarrollo"""
+    test_user = {
+        "email": "admin@test.com",
+        "password": "admin123",
+        "nombre": "Admin",
+        "apellido": "Test",
+        "rol": "administrador",
+        "rut": "12345678-9",
+        "activo": True,
+        "created_at": "2026-04-07T00:00:00Z",
+    }
+
+    # Verificar si ya existe
+    existing = Usuario.find_one({"email": test_user["email"]})
+    if existing:
+        return Response({"message": "Usuario ya existe", "user": existing})
+
+    # Crear usuario
+    usuario = Usuario(test_user)
+    usuario.save()
+
+    return Response(
+        {"message": "Usuario creado", "user": test_user}, status=status.HTTP_201_CREATED
+    )
+
+
 # ============ ESTUDIANTES ============
 class EstudianteList(APIView, MongoObjectIdMixin):
     """Listar estudiantes o crear nuevo"""
