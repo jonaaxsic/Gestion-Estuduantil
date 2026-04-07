@@ -1,0 +1,530 @@
+<div class="header-bar">
+  <div class="header-left">
+    <span class="material-icons header-icon">admin_panel_settings</span>
+    <h1 class="header-title">Administración</h1>
+  </div>
+  <div class="header-right">
+    <div class="user-info">
+      <span class="user-name">{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
+      @if (auth.user()?.rut) {
+        <span class="user-rut">RUT: {{ auth.user()?.rut }}</span>
+      }
+    </div>
+    <button class="btn-logout" (click)="logout()">
+      <span class="material-icons">logout</span>
+      Cerrar Sesión
+    </button>
+  </div>
+</div>
+
+<div class="page-container">
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab() === 'usuarios'" (click)="activeTab.set('usuarios')">
+      <span class="material-icons">people</span>
+      Usuarios
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'estudiantes'" (click)="activeTab.set('estudiantes')">
+      <span class="material-icons">school</span>
+      Estudiantes
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'cursos'" (click)="activeTab.set('cursos')">
+      <span class="material-icons">class</span>
+      Cursos
+    </button>
+  </div>
+  
+  <!-- USUARIOS TAB -->
+  @if (activeTab() === 'usuarios') {
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon users">
+          <span class="material-icons">people</span>
+        </div>
+        <div class="stat-value">{{ usuarios().length }}</div>
+        <div class="stat-label">Usuarios Totales</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon admins">
+          <span class="material-icons">shield</span>
+        </div>
+        <div class="stat-value">{{ getCountByRole('administrador') }}</div>
+        <div class="stat-label">Administradores</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon docentes">
+          <span class="material-icons">school</span>
+        </div>
+        <div class="stat-value">{{ getCountByRole('docente') }}</div>
+        <div class="stat-label">Docentes</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon apoderados">
+          <span class="material-icons">family_restroom</span>
+        </div>
+        <div class="stat-value">{{ getCountByRole('apoderado') }}</div>
+        <div class="stat-label">Apoderados</div>
+      </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <h3 class="card-title">
+            <span class="material-icons">person</span>
+            Gestión de Usuarios
+          </h3>
+        </div>
+        <div class="card-header-right">
+          <select class="filter-select" [(ngModel)]="rolFilter" (ngModelChange)="applyFilter()">
+            <option value="">Todos los roles</option>
+            <option value="administrador">Administrador</option>
+            <option value="docente">Docente</option>
+            <option value="apoderado">Apoderado</option>
+          </select>
+          <button class="btn-new" (click)="openUserDialog()">
+            <span class="material-icons">add</span>
+            Nuevo Usuario
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of usuarios(); track user.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar">{{ user.nombre?.charAt(0) }}{{ user.apellido?.charAt(0) }}</div>
+                    <div class="user-info">
+                      <span class="user-name-table">{{ user.nombre }} {{ user.apellido }}</span>
+                      <span class="user-username">&#64;{{ user.username }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <span class="badge badge-{{ user.rol }}">{{ user.rol }}</span>
+                </td>
+                <td>
+                  <span class="badge" [class.badge-activo]="user.activo" [class.badge-inactivo]="!user.activo">
+                    {{ user.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-icon edit" (click)="openUserDialog(user)" title="Editar">
+                      <span class="material-icons">edit</span>
+                    </button>
+                    <button class="btn-icon delete" (click)="deleteUsuario(user)" title="Eliminar">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        
+        @if (usuarios().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">person_off</span>
+            <p>No hay usuarios registrados</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  
+  <!-- ESTUDIANTES TAB -->
+  @if (activeTab() === 'estudiantes') {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon students">
+          <span class="material-icons">school</span>
+        </div>
+        <div class="stat-value">{{ estudiantes().length }}</div>
+        <div class="stat-label">Total Estudiantes</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon courses">
+          <span class="material-icons">class</span>
+        </div>
+        <div class="stat-value">{{ cursos().length }}</div>
+        <div class="stat-label">Cursos</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon guardian">
+          <span class="material-icons">family_restroom</span>
+        </div>
+        <div class="stat-value">{{ getEstudiantesConApoderado() }}</div>
+        <div class="stat-label">Con Apoderado</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon no-guardian">
+          <span class="material-icons">person_off</span>
+        </div>
+        <div class="stat-value">{{ estudiantes().length - getEstudiantesConApoderado() }}</div>
+        <div class="stat-label">Sin Apoderado</div>
+      </div>
+    </div>
+    
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <h3 class="card-title">
+            <span class="material-icons">school</span>
+            Gestión de Estudiantes
+          </h3>
+        </div>
+        <div class="card-header-right">
+          <button class="btn-new" (click)="openStudentDialog()">
+            <span class="material-icons">add</span>
+            Nuevo Estudiante
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Estudiante</th>
+              <th>RUT</th>
+              <th>Curso</th>
+              <th>Apoderado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (est of estudiantes(); track est.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar student">{{ est.nombre?.charAt(0) }}{{ est.apellido?.charAt(0) }}</div>
+                    <div class="user-info">
+                      <span class="user-name-table">{{ est.nombre }} {{ est.apellido }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ est.rut }}</td>
+                <td>
+                  <span class="badge badge-curso">{{ getCursoNombre(est.curso_id) }}</span>
+                </td>
+                <td>
+                  @if (est.apoderado_id) {
+                    <span class="badge badge-activo">Asignado</span>
+                  } @else {
+                    <span class="badge badge-inactivo">Sin asignar</span>
+                  }
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-icon edit" (click)="openStudentDialog(est)" title="Editar">
+                      <span class="material-icons">edit</span>
+                    </button>
+                    <button class="btn-icon delete" (click)="deleteEstudiante(est)" title="Eliminar">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        
+        @if (estudiantes().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">school</span>
+            <p>No hay estudiantes registrados</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  
+  <!-- CURSOS TAB -->
+  @if (activeTab() === 'cursos') {
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <h3 class="card-title">
+            <span class="material-icons">class</span>
+            Gestión de Cursos
+          </h3>
+        </div>
+        <div class="card-header-right">
+          <button class="btn-new" (click)="openCursoDialog()">
+            <span class="material-icons">add</span>
+            Nuevo Curso
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Curso</th>
+              <th>Nivel</th>
+              <th>Año</th>
+              <th>Estudiantes</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (curso of cursos(); track curso.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar course">{{ curso.nombre?.charAt(0) }}</div>
+                    <span class="user-name-table">{{ curso.nombre }}</span>
+                  </div>
+                </td>
+                <td>{{ curso.nivel }}</td>
+                <td>{{ curso.ano }}</td>
+                <td>{{ getEstudiantesCount(curso.id) }}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-icon edit" (click)="openCursoDialog(curso)" title="Editar">
+                      <span class="material-icons">edit</span>
+                    </button>
+                    <button class="btn-icon delete" (click)="deleteCurso(curso)" title="Eliminar">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        
+        @if (cursos().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">class</span>
+            <p>No hay cursos registrados</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- User Dialog -->
+@if (showUserDialog()) {
+  <div class="dialog-overlay" (click)="closeUserDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h2 class="dialog-title">
+          {{ editingUser() ? 'Editar' : 'Crear' }} Usuario
+        </h2>
+        <button class="btn-icon" (click)="closeUserDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="saveUser()" class="dialog-form">
+        <div class="form-group">
+          <label class="form-label">RUT</label>
+          <input type="text" class="form-input" [(ngModel)]="userForm.rut" name="rut" placeholder="12345678-9">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-input" [(ngModel)]="userForm.nombre" name="nombre" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido</label>
+            <input type="text" class="form-input" [(ngModel)]="userForm.apellido" name="apellido" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Correo electrónico</label>
+          <input type="email" class="form-input" [(ngModel)]="userForm.email" name="email" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Usuario</label>
+            <input type="text" class="form-input" [(ngModel)]="userForm.username" name="username" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input type="text" class="form-input" [(ngModel)]="userForm.telefono" name="telefono">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ editingUser() ? 'Nueva Contraseña (opcional)' : 'Contraseña' }}</label>
+          <input type="password" class="form-input" [(ngModel)]="userForm.password" name="password" [required]="!editingUser()">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Rol</label>
+          <select class="form-input" [(ngModel)]="userForm.rol" name="rol" required>
+            <option value="administrador">Administrador</option>
+            <option value="docente">Docente</option>
+            <option value="apoderado">Apoderado</option>
+          </select>
+        </div>
+        
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" (click)="closeUserDialog()">Cancelar</button>
+          <button type="submit" class="btn-save">
+            {{ editingUser() ? 'Actualizar' : 'Crear' }} Usuario
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Student Dialog -->
+@if (showStudentDialog()) {
+  <div class="dialog-overlay" (click)="closeStudentDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h2 class="dialog-title">
+          {{ editingStudent() ? 'Editar' : 'Crear' }} Estudiante
+        </h2>
+        <button class="btn-icon" (click)="closeStudentDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="saveStudent()" class="dialog-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-input" [(ngModel)]="studentForm.nombre" name="nombre" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido</label>
+            <input type="text" class="form-input" [(ngModel)]="studentForm.apellido" name="apellido" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">RUT</label>
+            <input type="text" class="form-input" [(ngModel)]="studentForm.rut" name="rut" placeholder="12345678-9" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input type="text" class="form-input" [(ngModel)]="studentForm.telefono" name="telefono">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Curso</label>
+          <select class="form-input" [(ngModel)]="studentForm.curso_id" name="curso_id">
+            <option value="">Sin curso asignado</option>
+            @for (curso of cursos(); track curso.id) {
+              <option [value]="curso.id">{{ curso.nombre }} - {{ curso.nivel }}</option>
+            }
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Apoderado (Usuario)</label>
+          <select class="form-input" [(ngModel)]="studentForm.apoderado_id" name="apoderado_id">
+            <option value="">Sin apoderado asignado</option>
+            @for (user of usuarios(); track user.id) {
+              @if (user.rol === 'apoderado') {
+                <option [value]="user.id">{{ user.nombre }} {{ user.apellido }} ({{ user.email }})</option>
+              }
+            }
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Dirección</label>
+          <input type="text" class="form-input" [(ngModel)]="studentForm.direccion" name="direccion">
+        </div>
+        
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" (click)="closeStudentDialog()">Cancelar</button>
+          <button type="submit" class="btn-save">
+            {{ editingStudent() ? 'Actualizar' : 'Crear' }} Estudiante
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Curso Dialog -->
+@if (showCursoDialog()) {
+  <div class="dialog-overlay" (click)="closeCursoDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h2 class="dialog-title">
+          {{ editingCurso() ? 'Editar' : 'Crear' }} Curso
+        </h2>
+        <button class="btn-icon" (click)="closeCursoDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="saveCurso()" class="dialog-form">
+        <div class="form-group">
+          <label class="form-label">Nombre del Curso</label>
+          <input type="text" class="form-input" [(ngModel)]="cursoForm.nombre" name="nombre" placeholder="Ej: 1° Medio A" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nivel</label>
+            <select class="form-input" [(ngModel)]="cursoForm.nivel" name="nivel" required>
+              <option value="Prekinder">Prekinder</option>
+              <option value="Kinder">Kinder</option>
+              <option value="1° Básico">1° Básico</option>
+              <option value="2° Básico">2° Básico</option>
+              <option value="3° Básico">3° Básico</option>
+              <option value="4° Básico">4° Básico</option>
+              <option value="5° Básico">5° Básico</option>
+              <option value="6° Básico">6° Básico</option>
+              <option value="7° Básico">7° Básico</option>
+              <option value="8° Básico">8° Básico</option>
+              <option value="1° Medio">1° Medio</option>
+              <option value="2° Medio">2° Medio</option>
+              <option value="3° Medio">3° Medio</option>
+              <option value="4° Medio">4° Medio</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Año</label>
+            <input type="number" class="form-input" [(ngModel)]="cursoForm.ano" name="ano" required>
+          </div>
+        </div>
+        
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" (click)="closeCursoDialog()">Cancelar</button>
+          <button type="submit" class="btn-save">
+            {{ editingCurso() ? 'Actualizar' : 'Crear' }} Curso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
