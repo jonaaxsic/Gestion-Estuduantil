@@ -29,7 +29,15 @@ load_dotenv()
 def get_required_env(var_name, description=""):
     value = os.environ.get(var_name)
     if not value:
-        raise ValueError(f"❌ Variable de entorno requerida: {var_name}. {description}")
+        # Valor por defecto para desarrollo
+        if var_name == "SECRET_KEY":
+            return "django-insecure-dev-key-change-in-production"
+        if var_name == "DEBUG":
+            return "False"
+        if var_name == "ALLOWED_HOSTS":
+            return "*"
+        # print(f"⚠️ Variable de entorno requerida: {var_name}. {description}")
+        return None
     return value
 
 
@@ -43,25 +51,32 @@ if MONGO_URI:
 else:
     # Opción 2: Usar variables separadas (desarrollo local)
     MONGO_HOST = os.environ.get("MONGO_HOST", "main-database.rpaamyh.mongodb.net")
-    MONGO_USER = get_required_env("MONGO_USER", "Usuario de MongoDB Atlas")
-    MONGO_PASSWORD = get_required_env("MONGO_PASSWORD", "Password de MongoDB Atlas")
+    MONGO_USER = os.environ.get("MONGO_USER")
+    MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
     MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", "App_estudiantil")
     MONGO_PORT = int(os.environ.get("MONGO_PORT", 27017))
 
-    # Build MongoDB URI
-    password = quote_plus(MONGO_PASSWORD)
-    MONGO_URI = (
-        f"mongodb+srv://{MONGO_USER}:{password}@{MONGO_HOST}/?appName=Main-Database"
-    )
+    # Solo construir URI si tenemos credenciales
+    if MONGO_USER and MONGO_PASSWORD:
+        password = quote_plus(MONGO_PASSWORD)
+        MONGO_URI = (
+            f"mongodb+srv://{MONGO_USER}:{password}@{MONGO_HOST}/?appName=Main-Database"
+        )
+    else:
+        # Sin credenciales, deshabilitar MongoDB temporalmente
+        MONGO_URI = None
+        MONGO_DB_NAME = None
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_required_env("SECRET_KEY", "Clave secreta de Django")
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY", "django-insecure-dev-key-change-in-production"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
