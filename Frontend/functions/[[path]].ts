@@ -41,14 +41,9 @@ const mockData = {
   reuniones: [
     { _id: "1", curso_id: "1", fecha: "2026-04-20", hora: "18:00", lugar: "Sala de Padres" },
   ],
-  apoderados: [
+  apoderos: [
     { _id: "1", nombre: "Roberto", apellido: "González", telefono: "+56912345678", estudiante_id: "1" },
   ]
-};
-
-// Pages Function export format
-export const onRequest = async (context) => {
-  return handleRequest(context.request);
 };
 
 // ===========================================
@@ -90,7 +85,7 @@ async function handleRequest(request) {
 
   try {
     // ===========================================
-    // AUTH - Login
+    // AUTH - Login (POST)
     // ===========================================
     if (path === "/auth/login" && method === "POST") {
       const data = await request.json();
@@ -196,9 +191,9 @@ async function handleRequest(request) {
     if (path === "/apoderados" || path === "/apoderados/") {
       if (method === "GET") {
         const estudianteId = url.searchParams.get("estudiante_id");
-        let apoderados = mockData.apoderados;
-        if (estudianteId) apoderados = apoderos.filter(a => a.estudiante_id === estudianteId);
-        return jsonResponse(apoderados);
+        let apoderos = mockData.apoderados;
+        if (estudianteId) apoderos = apoderos.filter(a => a.estudiante_id === estudianteId);
+        return jsonResponse(apoderos);
       }
     }
 
@@ -207,4 +202,27 @@ async function handleRequest(request) {
   } catch (e) {
     return errorResponse("Error: " + e.message, 500);
   }
+}
+
+// ===========================================
+// EXPORTS - Cloudflare Pages Functions
+// ===========================================
+export async function onRequestGet(request) {
+  return handleRequest(request);
+}
+
+export async function onRequestPost(request) {
+  return handleRequest(request);
+}
+
+export async function onRequestPut(request) {
+  return handleRequest(request);
+}
+
+export async function onRequestDelete(request) {
+  return handleRequest(request);
+}
+
+export async function onRequestOptions(request) {
+  return new Response("", { status: 204, headers: corsHeaders });
 }
