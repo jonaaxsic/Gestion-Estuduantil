@@ -119,6 +119,15 @@ def login_view(request):
             {"error": "Email y password requeridos"}, status=status.HTTP_400_BAD_REQUEST
         )
 
+    # Debug: ver qué llega
+    print(f"DEBUG login: email={email}, password={password}")
+
+    # Buscar sin filtro de password primero para debug
+    usuario_debug = Usuario.find_one({"email": email, "activo": True})
+    if usuario_debug:
+        print(f"DEBUG usuario encontrado: {usuario_debug.to_dict()}")
+
+    # Login normal con password
     usuario = Usuario.find_one({"email": email, "password": password, "activo": True})
 
     if usuario:
