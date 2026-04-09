@@ -27,11 +27,14 @@ jobs:
           cd Frontend
           npm run build
 
+      - name: Build Functions Worker
+        run: |
+          cd Frontend
+          npx wrangler pages functions build functions --outdir dist/cloudflare/browser
+
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          project-name: gestion-estudiantil
-          directory: Frontend/dist/cloudflare/browser
-          git-hash: ${{ github.sha }}
+          command: pages deploy dist/cloudflare/browser --project-name gestionestudiantil
