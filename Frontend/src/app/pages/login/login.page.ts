@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class LoginPage {
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
   
   email = '';
   password = '';

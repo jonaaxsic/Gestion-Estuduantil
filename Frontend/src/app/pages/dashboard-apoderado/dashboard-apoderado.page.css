@@ -75,6 +75,24 @@
   font-family: inherit;
 }
 
+.btn-icon {
+  background: var(--bg-subtle);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: var(--bg-hover);
+  color: var(--brand);
+}
+
 .btn-secondary {
   background: var(--btn-secondary-bg);
   color: var(--btn-secondary-txt);
@@ -182,7 +200,7 @@
 }
 
 .info-card.azul  { border-left: 4px solid var(--brand); }
-.info-card.verde { border-left: 4px solid var(--success); }
+.info-card.verde { border-left: 4px solid #6366f1; }
 
 .info-card .card-header {
   display: flex;
@@ -199,7 +217,7 @@
 }
 
 .info-card.verde .card-header {
-  background: var(--success);
+  background: #6366f1;
   color: #fff;
 }
 
