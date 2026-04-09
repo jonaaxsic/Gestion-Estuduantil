@@ -146,7 +146,10 @@ export class AdminPage implements OnInit {
   }
   
   saveRecordatorio(): void {
-    if (!this.recordatorioForm.titulo) return;
+    if (!this.recordatorioForm.titulo) {
+      this.showMessage('Ingrese un título');
+      return;
+    }
     const userId = this.auth.user()?.id;
     if (!userId) return;
     
@@ -154,8 +157,9 @@ export class AdminPage implements OnInit {
     this.api.createRecordatorio({
       usuario_id: userId,
       titulo: this.recordatorioForm.titulo,
-      descripcion: this.recordatorioForm.descripcion,
+      descripcion: this.recordatorioForm.descripcion || '',
       fecha_limite: this.recordatorioForm.fecha_limite || undefined,
+      fecha: this.recordatorioForm.fecha_limite || undefined,
       completada: false
     }).subscribe({
       next: () => {
@@ -164,8 +168,9 @@ export class AdminPage implements OnInit {
         this.closeRecordatorioDialog();
         this.loadRecordatorios();
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
+        console.error('Error creating recordatorio:', err);
         this.showMessage('Error al crear recordatorio');
       }
     });

@@ -404,7 +404,7 @@ export class DashboardDocentePage implements OnInit {
       fecha: this.reunionForm.fecha,
       hora: this.reunionForm.hora,
       lugar: this.reunionForm.lugar,
-      descripcion: this.reunionForm.descripcion,
+      descripcion: this.reunionForm.descripcion || '',
       notificacion_enviada: false
     }).subscribe({
       next: () => {
@@ -413,9 +413,10 @@ export class DashboardDocentePage implements OnInit {
         this.showSuccess('Reunión programada correctamente');
         this.loadData();
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
-        alert('Error al programar reunión');
+        console.error('Error al crear reunión:', err);
+        alert('Error al programar reunión. Verifique los datos e intente nuevamente.');
       }
     });
   }

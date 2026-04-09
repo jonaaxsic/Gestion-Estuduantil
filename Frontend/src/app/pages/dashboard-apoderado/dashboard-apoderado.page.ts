@@ -129,8 +129,9 @@ export class DashboardApoderadoPage implements OnInit {
     this.api.createRecordatorio({
       usuario_id: userId,
       titulo: this.recordatorioForm.titulo,
-      descripcion: this.recordatorioForm.descripcion,
+      descripcion: this.recordatorioForm.descripcion || '',
       fecha_limite: this.recordatorioForm.fecha_limite || undefined,
+      fecha: this.recordatorioForm.fecha_limite || undefined,
       completada: false
     }).subscribe({
       next: () => {
@@ -139,8 +140,9 @@ export class DashboardApoderadoPage implements OnInit {
         this.closeRecordatorioModal();
         this.loadData();
       },
-      error: () => {
+      error: (err) => {
         this.saving.set(false);
+        console.error('Error creating recordatorio:', err);
         alert('Error al crear recordatorio');
       }
     });
