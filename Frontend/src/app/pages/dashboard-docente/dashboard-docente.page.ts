@@ -448,9 +448,16 @@ export class DashboardDocentePage implements OnInit {
   }
 
   // Guardar nota de un estudiante
-  guardarNota(estudianteId: string, numeroNota: string, valor: number): void {
+  guardarNota(estudianteId: string, numeroNota: string, valor: string): void {
     const curso = this.selectedCurso();
     if (!curso?.id || !this.selectedAsignatura()) return;
+
+    // Convertir valor a número, si es vacío usar undefined
+    const notaValor = valor ? parseFloat(valor) : undefined;
+    if (notaValor !== undefined && (notaValor < 1 || notaValor > 7)) {
+      alert('La nota debe estar entre 1 y 7');
+      return;
+    }
 
     this.api.actualizarNotaSimple({
       estudiante_id: estudianteId,
@@ -458,7 +465,7 @@ export class DashboardDocentePage implements OnInit {
       asignatura: this.selectedAsignatura(),
       ano_escolar: this.anoEscolar,
       numero_nota: numeroNota,
-      valor: valor
+      valor: notaValor as number
     }).subscribe({
       next: () => {
         this.showSuccess('Nota guardada correctamente');
@@ -470,6 +477,12 @@ export class DashboardDocentePage implements OnInit {
 
   getNotaEstudiante(estudianteId: string): Nota | undefined {
     return this.notasEstudiantes().find(n => n.estudiante_id === estudianteId);
+  }
+
+  getNotaValor(nota: Nota | undefined, num: string): string {
+    if (!nota?.notas) return '';
+    const val = nota.notas[num];
+    return val !== undefined && val !== null ? String(val) : '';
   }
 
   // Estudiantes ordenados alfabéticamente

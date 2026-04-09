@@ -129,7 +129,7 @@ export interface Nota {
   curso_id: string;
   asignatura: string;
   ano_escolar: number;
-  notas?: { [key: string]: number | null };
+  notas?: { [key: string]: number | null | undefined };
   nota_final?: number | null;
   cerrado?: boolean;
   created_at?: string;

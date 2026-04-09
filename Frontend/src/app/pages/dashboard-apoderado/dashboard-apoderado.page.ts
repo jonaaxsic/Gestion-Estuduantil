@@ -199,6 +199,17 @@ export class DashboardApoderadoPage implements OnInit {
   get numerosNota(): string[] {
     return ['nota1', 'nota2', 'nota3', 'nota4', 'nota5', 'nota6'];
   }
+
+  getNotaDisplay(notas: any, num: string): string {
+    if (!notas) return '-';
+    const val = notas[num];
+    return val !== undefined && val !== null ? String(val) : '-';
+  }
+
+  isNotaVacia(notas: any, num: string): boolean {
+    if (!notas) return true;
+    return notas[num] === undefined || notas[num] === null;
+  }
   
   logout(): void {
     this.auth.logout();

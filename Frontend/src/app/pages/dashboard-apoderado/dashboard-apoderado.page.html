@@ -240,12 +240,30 @@
                 </span>
               </div>
               <div class="notas-lista">
-                @for (numNota of numerosNota; track numNota; let i = $index) {
+                @if (nota.notas) {
                   <div class="nota-item">
-                    <span class="nota-label">Nota {{ i + 1 }}:</span>
-                    <span class="nota-valor" [class.vacio]="!nota.notas || nota.notas?.[numNota] === undefined">
-                      {{ nota.notas ? nota.notas[numNota] ?? '-' : '-' }}
-                    </span>
+                    <span class="nota-label">Nota 1:</span>
+                    <span class="nota-valor" [class.vacio]="isNotaVacia(nota.notas, 'nota1')">{{ getNotaDisplay(nota.notas, 'nota1') }}</span>
+                  </div>
+                  <div class="nota-item">
+                    <span class="nota-label">Nota 2:</span>
+                    <span class="nota-valor" [class.vacio]="isNotaVacia(nota.notas, 'nota2')">{{ getNotaDisplay(nota.notas, 'nota2') }}</span>
+                  </div>
+                  <div class="nota-item">
+                    <span class="nota-label">Nota 3:</span>
+                    <span class="nota-valor" [class.vacio]="isNotaVacia(nota.notas, 'nota3')">{{ getNotaDisplay(nota.notas, 'nota3') }}</span>
+                  </div>
+                  <div class="nota-item">
+                    <span class="nota-label">Nota 4:</span>
+                    <span class="nota-valor" [class.vacio]="isNotaVacia(nota.notas, 'nota4')">{{ getNotaDisplay(nota.notas, 'nota4') }}</span>
+                  </div>
+                  <div class="nota-item">
+                    <span class="nota-label">Nota 5:</span>
+                    <span class="nota-valor" [class.vacio]="isNotaVacia(nota.notas, 'nota5')">{{ getNotaDisplay(nota.notas, 'nota5') }}</span>
+                  </div>
+                  <div class="nota-item">
+                    <span class="nota-label">Nota 6:</span>
+                    <span class="nota-valor" [class.vacio]="isNotaVacia(nota.notas, 'nota6')">{{ getNotaDisplay(nota.notas, 'nota6') }}</span>
                   </div>
                 }
               </div>
