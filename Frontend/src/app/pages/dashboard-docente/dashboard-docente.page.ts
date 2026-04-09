@@ -60,6 +60,7 @@ export class DashboardDocentePage implements OnInit {
   // Modal states
   showAsistenciaModal = signal(false);
   showEvaluacionModal = signal(false);
+  showEvaluacionEditModal = signal(false);
   showAnotacionModal = signal(false);
   showReunionModal = signal(false);
   showRecordatorioModal = signal(false);
@@ -69,6 +70,7 @@ export class DashboardDocentePage implements OnInit {
   
   selectedCurso = signal<Curso | null>(null);
   selectedAsignatura = signal<string>('');
+  selectedEvaluacion = signal<Evaluacion | null>(null);
   saving = signal(false);
   successMessage = signal('');
   anoEscolar = new Date().getFullYear();
@@ -189,7 +191,31 @@ export class DashboardDocentePage implements OnInit {
       fecha: '',
       ponderacion: 20
     };
+    this.selectedEvaluacion.set(null);
     this.showEvaluacionModal.set(true);
+  }
+  
+  openEvaluacionEditDialog(evaluacion: Evaluacion): void {
+    this.evaluacionForm = {
+      cursoId: evaluacion.curso_id || '',
+      materia: evaluacion.materia || '',
+      titulo: evaluacion.titulo || '',
+      descripcion: evaluacion.descripcion || '',
+      fecha: evaluacion.fecha || '',
+      ponderacion: evaluacion.ponderacion || 20
+    };
+    this.selectedEvaluacion.set(evaluacion);
+    this.showEvaluacionEditModal.set(true);
+  }
+  
+  closeModals(): void {
+    this.showAsistenciaModal.set(false);
+    this.showEvaluacionModal.set(false);
+    this.showEvaluacionEditModal.set(false);
+    this.showAnotacionModal.set(false);
+    this.showReunionModal.set(false);
+    this.showRecordatorioModal.set(false);
+    this.selectedEvaluacion.set(null);
   }
   
   openAnotacionDialog(): void {
@@ -306,6 +332,50 @@ export class DashboardDocentePage implements OnInit {
         alert('Error al crear evaluación');
       }
     });
+  }
+  
+  updateEvaluacion(): void {
+    const evaluacion = this.selectedEvaluacion();
+    if (!evaluacion?.id) return;
+    
+    if (!this.evaluacionForm.cursoId || !this.evaluacionForm.materia || !this.evaluacionForm.titulo || !this.evaluacionForm.fecha) {
+      alert('Por favor complete todos los campos requeridos');
+      return;
+    }
+    
+    this.saving.set(true);
+    this.api.updateEvaluacion(evaluacion.id, {
+      curso_id: this.evaluacionForm.cursoId,
+      materia: this.evaluacionForm.materia,
+      titulo: this.evaluacionForm.titulo,
+      descripcion: this.evaluacionForm.descripcion,
+      fecha: this.evaluacionForm.fecha,
+      ponderacion: this.evaluacionForm.ponderacion
+    }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.closeModals();
+        this.showSuccess('Evaluación actualizada correctamente');
+        this.loadData();
+      },
+      error: () => {
+        this.saving.set(false);
+        alert('Error al actualizar evaluación');
+      }
+    });
+  }
+  
+  deleteEvaluacion(evaluacion: Evaluacion): void {
+    if (evaluacion.id && confirm('¿Eliminar esta evaluación?')) {
+      this.api.deleteEvaluacion(evaluacion.id).subscribe({
+        next: () => {
+          this.showSuccess('Evaluación eliminada');
+          this.loadData();
+        },
+        error: () => alert('Error al eliminar evaluación')
+      });
+    }
+  }
   }
   
   saveAnotacion(): void {

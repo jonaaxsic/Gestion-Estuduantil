@@ -101,3 +101,6 @@ docker-compose.override.yml
 Backend.err
 conexion-mongodb.txt
 
+#--------referencias visuales------
+imagenes/
+

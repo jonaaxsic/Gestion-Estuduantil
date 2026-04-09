@@ -487,6 +487,16 @@
 .stat-icon.guardian { background: #f59e0b; }
 .stat-icon.no-guardian { background: #ef4444; }
 
+@media (max-width: 1024px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+  
+  .btn-text {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .header-bar {
     flex-direction: column;
@@ -524,9 +534,55 @@
     grid-template-columns: 1fr;
   }
 
+  /* Tabs for mobile - horizontal scroll without panel */
   .tabs {
     width: 100%;
     justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .tab {
+    padding: 10px 16px;
+    min-width: auto;
+    scroll-snap-align: start;
+    font-size: 0.85rem;
+  }
+
+  .tab .material-icons {
+    display: none;
+  }
+
+  .tab.active {
+    background: #1e293b;
+    color: white;
+  }
+
+  /* Hide side panel button on mobile */
+  .side-panel-toggle {
+    display: none;
+  }
+
+  /* Title centering for mobile */
+  .card-header-left {
+    justify-content: center;
+  }
+
+  .card-title {
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Course panel hidden on mobile */
+  .side-panel {
+    display: none;
+  }
+
+  .page-container.with-panel {
+    margin-left: 0;
   }
 }
 

@@ -172,10 +172,18 @@
       <!-- Evaluaciones -->
       <div class="content-card">
         <div class="card-header">
-          <h3 class="card-title">
-            <span class="material-icons">assignment</span>
-            Evaluaciones Próximas
-          </h3>
+          <div class="card-header-left">
+            <h3 class="card-title">
+              <span class="material-icons">assignment</span>
+              Evaluaciones Próximas
+            </h3>
+          </div>
+          <div class="card-header-right">
+            <button class="btn-new" (click)="openEvaluacionDialog()">
+              <span class="material-icons">add</span>
+              Nueva
+            </button>
+          </div>
         </div>
         <div class="card-body">
           @if (evaluaciones().length === 0) {
@@ -191,7 +199,18 @@
                 </div>
                 <div class="list-content">
                   <span class="title">{{ eval.titulo }}</span>
-                  <span class="subtitle">{{ eval.materia }} - {{ eval.fecha }}</span>
+                  <span class="subtitle">{{ eval.materia }} - {{ eval.fecha }} - {{ eval.ponderacion }}%</span>
+                  @if (eval.descripcion) {
+                    <span class="subtitle">{{ eval.descripcion }}</span>
+                  }
+                </div>
+                <div class="action-buttons">
+                  <button class="btn-icon edit" (click)="openEvaluacionEditDialog(eval)" title="Editar">
+                    <span class="material-icons">edit</span>
+                  </button>
+                  <button class="btn-icon delete" (click)="deleteEvaluacion(eval)" title="Eliminar">
+                    <span class="material-icons">delete</span>
+                  </button>
                 </div>
               </div>
             }
@@ -424,6 +443,57 @@
         <button class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
         <button class="btn btn-primary" (click)="saveEvaluacion()" [disabled]="saving()">
           {{ saving() ? 'Guardando...' : 'Crear Evaluación' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Edit Evaluacion Modal -->
+@if (showEvaluacionEditModal()) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><span class="material-icons">edit</span> Editar Evaluación</h2>
+        <button class="close-btn" (click)="closeModals()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Curso</label>
+          <select class="form-select" [(ngModel)]="evaluacionForm.cursoId">
+            <option value="">Seleccionar curso</option>
+            @for (curso of cursosAsignados(); track curso.id) {
+              <option [value]="curso.id">{{ curso.nivel }} {{ curso.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Asignatura</label>
+          <input type="text" class="form-input" [(ngModel)]="evaluacionForm.materia" [placeholder]="selectedAsignatura() || 'Ej: Matemáticas'">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" [(ngModel)]="evaluacionForm.titulo" placeholder="Ej: Prueba 1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-textarea" [(ngModel)]="evaluacionForm.descripcion" placeholder="Contenido de la evaluación"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input type="date" class="form-input" [(ngModel)]="evaluacionForm.fecha">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ponderación (%)</label>
+          <input type="number" class="form-input" [(ngModel)]="evaluacionForm.ponderacion" placeholder="20">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
+        <button class="btn btn-primary" (click)="updateEvaluacion()" [disabled]="saving()">
+          {{ saving() ? 'Guardando...' : 'Actualizar' }}
         </button>
       </div>
     </div>
