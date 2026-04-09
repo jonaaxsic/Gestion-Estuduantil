@@ -134,11 +134,24 @@ class AsignacionDocenteList(APIView, MongoObjectIdMixin):
         return Response(serializer.data)
 
     def post(self, request):
+        print(f"DEBUG - POST /asignaciones-docente - request.data: {request.data}")
+        print(
+            f"DEBUG - POST /asignaciones-docente - Content-Type: {request.content_type}"
+        )
+
         serializer = AsignacionDocenteSerializer(data=request.data)
+        print(f"DEBUG - Raw data received: {request.data}")
+
         if serializer.is_valid():
+            print(
+                f"DEBUG - Serializer is VALID, validated_data: {serializer.validated_data}"
+            )
             serializer.save()
+            print(f"DEBUG - Saved successfully!")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print(f"DEBUG - Serializer ERRORS: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AsignacionDocenteDetail(APIView, MongoObjectIdMixin):

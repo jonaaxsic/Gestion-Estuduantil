@@ -47,12 +47,18 @@ class BaseModel:
         now = datetime.now()
         data = self.to_dict()
 
+        print(f"DEBUG BaseModel.save() - collection: {self.collection_name}")
+        print(f"DEBUG BaseModel.save() - data to save: {data}")
+
         if self._id:
             # Update - exclude _id from the data to prevent immutable field error
             data.pop("_id", None)
             data["updated_at"] = now
-            self.get_collection().update_one(
+            result = self.get_collection().update_one(
                 {"_id": ObjectId(self._id)}, {"$set": data}
+            )
+            print(
+                f"DEBUG BaseModel.save() - Updated, modified: {result.modified_count}"
             )
         else:
             # Insert
@@ -62,6 +68,7 @@ class BaseModel:
             self._id = str(result.inserted_id)
             self.created_at = data["created_at"]
             self.updated_at = data["updated_at"]
+            print(f"DEBUG BaseModel.save() - Inserted, _id: {self._id}")
 
         return self
 
