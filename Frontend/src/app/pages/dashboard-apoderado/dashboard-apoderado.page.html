@@ -16,7 +16,6 @@
     </button>
     <div class="user-info">
       <span class="user-name">{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
-      <span class="user-rut">{{ auth.user()?.rut }}</span>
     </div>
     <button class="btn-logout" (click)="logout()">
       <span class="material-icons">logout</span>
@@ -163,7 +162,8 @@
     </div>
   </div>
   
-  <!-- Content Grid -->
+  <!-- Content Grid - Solo mostrar en vista inicio -->
+  @if (activeSection() === 'inicio') {
   <div class="card-grid">
     <!-- Asistencia -->
     <div class="content-card">
@@ -258,6 +258,184 @@
       </div>
     </div>
   </div>
+  }
+
+  <!-- Vista de Notas -->
+  @if (activeSection() === 'notas') {
+  <div class="notas-view">
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons">grade</span>
+          Mis Calificaciones - Año {{ anoEscolar }}
+        </h3>
+      </div>
+      <div class="card-body">
+        @if (notas().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">info</span>
+            <p>No hay notas registradas</p>
+          </div>
+        } @else {
+          @for (nota of notas(); track nota.id) {
+            <div class="nota-asignatura">
+              <h4 class="asignatura-titulo">{{ nota.asignatura }}</h4>
+              <div class="notas-grid">
+                <div class="nota-item">
+                  <span class="nota-label">Nota 1</span>
+                  <span class="nota-value" [class.vacio]="isNotaVacia(nota.notas, 'nota1')">
+                    {{ getNotaDisplay(nota.notas, 'nota1') }}
+                  </span>
+                </div>
+                <div class="nota-item">
+                  <span class="nota-label">Nota 2</span>
+                  <span class="nota-value" [class.vacio]="isNotaVacia(nota.notas, 'nota2')">
+                    {{ getNotaDisplay(nota.notas, 'nota2') }}
+                  </span>
+                </div>
+                <div class="nota-item">
+                  <span class="nota-label">Nota 3</span>
+                  <span class="nota-value" [class.vacio]="isNotaVacia(nota.notas, 'nota3')">
+                    {{ getNotaDisplay(nota.notas, 'nota3') }}
+                  </span>
+                </div>
+                <div class="nota-item">
+                  <span class="nota-label">Nota 4</span>
+                  <span class="nota-value" [class.vacio]="isNotaVacia(nota.notas, 'nota4')">
+                    {{ getNotaDisplay(nota.notas, 'nota4') }}
+                  </span>
+                </div>
+                <div class="nota-item">
+                  <span class="nota-label">Nota 5</span>
+                  <span class="nota-value" [class.vacio]="isNotaVacia(nota.notas, 'nota5')">
+                    {{ getNotaDisplay(nota.notas, 'nota5') }}
+                  </span>
+                </div>
+                <div class="nota-item">
+                  <span class="nota-label">Nota 6</span>
+                  <span class="nota-value" [class.vacio]="isNotaVacia(nota.notas, 'nota6')">
+                    {{ getNotaDisplay(nota.notas, 'nota6') }}
+                  </span>
+                </div>
+                <div class="nota-item promedio">
+                  <span class="nota-label">Promedio</span>
+                  <span class="nota-value">{{ nota.nota_final || '-' }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Vista de Asistencia Completa -->
+  @if (activeSection() === 'asistencia') {
+  <div class="asistencia-view">
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons">check_circle</span>
+          Registro de Asistencia
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-num">{{ getPresentes() }}</span>
+            <span class="stat-text">Presentes</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">{{ getTotalAsistencias() - getPresentes() }}</span>
+            <span class="stat-text">Ausentes</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">{{ getTotalAsistencias() }}</span>
+            <span class="stat-text">Total</span>
+          </div>
+        </div>
+        @if (asistencia().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">info</span>
+            <p>No hay registros de asistencia</p>
+          </div>
+        } @else {
+          <div class="asistencia-list">
+            @for (asist of asistencia(); track asist.id) {
+              <div class="asistencia-item">
+                <div class="asistencia-icon" [class.presente]="asist.presente" [class.falta]="!asist.presente">
+                  <span class="material-icons">{{ asist.presente ? 'check_circle' : 'cancel' }}</span>
+                </div>
+                <div class="asistencia-info">
+                  <span class="asistencia-fecha">{{ asist.fecha }}</span>
+                  <span class="asistencia-estado">{{ asist.presente ? 'Presente' : 'Ausente' }}</span>
+                  @if (asist.observacion) {
+                    <span class="asistencia-obs">{{ asist.observacion }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Vista de Reuniones -->
+  @if (activeSection() === 'reuniones') {
+  <div class="reuniones-view">
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons">event</span>
+          Reuniones de Apoderados
+        </h3>
+      </div>
+      <div class="card-body">
+        @if (reuniones().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">info</span>
+            <p>No hay reuniones programadas</p>
+          </div>
+        } @else {
+          @if (getReunionesProximas().length > 0) {
+            <h4 class="section-title">Próximas Reuniones</h4>
+            @for (reunion of getReunionesProximas(); track reunion.id) {
+              <div class="reunion-item proxima">
+                <div class="reunion-icon">
+                  <span class="material-icons">event</span>
+                </div>
+                <div class="reunion-info">
+                  <span class="reunion-fecha">{{ reunion.fecha }} - {{ reunion.hora }}</span>
+                  <span class="reunion-lugar">{{ reunion.lugar }}</span>
+                  @if (reunion.descripcion) {
+                    <span class="reunion-desc">{{ reunion.descripcion }}</span>
+                  }
+                </div>
+              </div>
+            }
+          }
+          @if (getReunionesPasadas().length > 0) {
+            <h4 class="section-title">Reuniones Pasadas</h4>
+            @for (reunion of getReunionesPasadas(); track reunion.id) {
+              <div class="reunion-item pasada">
+                <div class="reunion-icon">
+                  <span class="material-icons">history</span>
+                </div>
+                <div class="reunion-info">
+                  <span class="reunion-fecha">{{ reunion.fecha }} - {{ reunion.hora }}</span>
+                  <span class="reunion-lugar">{{ reunion.lugar }}</span>
+                </div>
+              </div>
+            }
+          }
+        }
+      </div>
+    </div>
+  </div>
+  }
 </div>
 
 <!-- Recordatorio Modal -->

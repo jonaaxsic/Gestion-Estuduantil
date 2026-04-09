@@ -953,3 +953,245 @@
 
   .notas-lista { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── VISTAS DEL PANEL APODERADO ─────────────────────────────── */
+.notas-view, .asistencia-view, .reuniones-view {
+  padding: 20px;
+}
+
+/* Notas por asignatura */
+.nota-asignatura {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.asignatura-titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.asignatura-titulo::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+.notas-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.nota-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 6px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.nota-item.promedio {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.nota-item.promedio .nota-label,
+.nota-item.promedio .nota-value {
+  color: white;
+}
+
+.nota-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.nota-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.nota-value.vacio {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Asistencia completa */
+.stats-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.asistencia-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.asistencia-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.asistencia-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.asistencia-icon.presente {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.asistencia-icon.falta {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+.asistencia-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.asistencia-fecha {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.asistencia-estado {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.asistencia-obs {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Reuniones */
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 20px 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.section-title:first-child {
+  margin-top: 0;
+}
+
+.reunion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.reunion-item.proxima {
+  border-left: 4px solid var(--primary-color);
+}
+
+.reunion-item.pasada {
+  opacity: 0.7;
+  border-left: 4px solid var(--text-muted);
+}
+
+.reunion-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}
+
+.reunion-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reunion-fecha {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.reunion-lugar {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.reunion-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Responsive para las nuevas vistas */
+@media (max-width: 768px) {
+  .notas-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .stats-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
