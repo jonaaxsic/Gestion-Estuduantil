@@ -134,23 +134,60 @@ class AsignacionDocenteList(APIView, MongoObjectIdMixin):
         return Response(serializer.data)
 
     def post(self, request):
-        print(f"=" * 60)
-        print(f"DEBUG POST /asignaciones-docente - FULL REQUEST")
-        print(f"DEBUG request.data: {request.data}")
-        print(f"DEBUG Content-Type: {request.content_type}")
-        print(f"DEBUG Headers: {dict(request.headers)}")
-        print(f"=" * 60)
+        # Método simplificado para debugging
+        try:
+            data = request.data
+            print(f"DEBUG - Datos recibidos: {data}")
 
-        serializer = AsignacionDocenteSerializer(data=request.data)
+            # Verificar conexión a MongoDB
+            from core.database import is_connected
 
-        if serializer.is_valid():
-            print(f"DEBUG: Serializer validado OK: {serializer.validated_data}")
-            instance = serializer.save()
-            print(f"DEBUG: Guardado en MongoDB! _id={instance._id}")
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            print(f"DEBUG: ERRORES del serializer: {serializer.errors}")
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            mongo_ok = is_connected()
+            print(f"DEBUG - MongoDB conectado: {mongo_ok}")
+
+            if not mongo_ok:
+                return Response(
+                    {"error": "MongoDB no conectado"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
+            # Guardar directamente en MongoDB
+            from core.models import AsignacionDocente
+
+            print(f"DEBUG - Creando AsignacionDocente...")
+            asignacion = AsignacionDocente(
+                {
+                    "docente_id": data.get("docente_id"),
+                    "curso_id": data.get("curso_id"),
+                    "asignatura": data.get("asignatura"),
+                    "activo": True,
+                }
+            )
+
+            print(f"DEBUG - Llamando save()...")
+            asignacion.save()
+
+            print(f"DEBUG - GUARDADO OK! _id: {asignacion._id}")
+
+            return Response(
+                {
+                    "success": True,
+                    "id": asignacion._id,
+                    "docente_id": data.get("docente_id"),
+                    "curso_id": data.get("curso_id"),
+                    "asignatura": data.get("asignatura"),
+                },
+                status=status.HTTP_201_CREATED,
+            )
+
+        except Exception as e:
+            print(f"ERROR: {type(e).__name__}: {e}")
+            import traceback
+
+            traceback.print_exc()
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class AsignacionDocenteDetail(APIView, MongoObjectIdMixin):
