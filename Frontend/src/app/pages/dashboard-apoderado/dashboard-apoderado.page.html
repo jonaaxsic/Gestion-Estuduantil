@@ -243,8 +243,8 @@
                 @for (numNota of numerosNota; track numNota; let i = $index) {
                   <div class="nota-item">
                     <span class="nota-label">Nota {{ i + 1 }}:</span>
-                    <span class="nota-valor" [class.vacio]="!nota.notas || !nota.notas[numNota]">
-                      {{ nota.notas ? nota.notas[numNota] || '-' : '-' }}
+                    <span class="nota-valor" [class.vacio]="!nota.notas || nota.notas?.[numNota] === undefined">
+                      {{ nota.notas ? nota.notas[numNota] ?? '-' : '-' }}
                     </span>
                   </div>
                 }
