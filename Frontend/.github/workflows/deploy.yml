@@ -27,6 +27,11 @@ jobs:
           cd Frontend
           npm run build
 
+      - name: Copy _routes.json to dist
+        run: |
+          cd Frontend
+          cp public/_routes.json dist/cloudflare/browser/_routes.json
+
       - name: Build Functions Worker
         run: |
           cd Frontend
