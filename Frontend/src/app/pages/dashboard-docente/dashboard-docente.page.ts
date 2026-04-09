@@ -248,26 +248,13 @@ export class DashboardDocentePage implements OnInit {
     this.showRecordatorioModal.set(true);
   }
   
-  toggleCursosPanel(): void {
-    this.showCursosPanel.update(v => !v);
-  }
-  
   selectCurso(curso: Curso): void {
     this.selectedCurso.set(curso);
-    // Cargar estudiantes del curso
     if (curso.id) {
       this.api.getEstudiantes(curso.id).subscribe(data => {
         this.estudiantes.set(data);
       });
     }
-  }
-  
-  closeModals(): void {
-    this.showAsistenciaModal.set(false);
-    this.showEvaluacionModal.set(false);
-    this.showAnotacionModal.set(false);
-    this.showReunionModal.set(false);
-    this.showRecordatorioModal.set(false);
   }
   
   showSuccess(msg: string): void {
@@ -375,7 +362,6 @@ export class DashboardDocentePage implements OnInit {
         error: () => alert('Error al eliminar evaluación')
       });
     }
-  }
   }
   
   saveAnotacion(): void {
