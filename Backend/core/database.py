@@ -31,14 +31,14 @@ def get_client():
     print(f"DEBUG - MONGO_HOST: {getattr(settings, 'MONGO_HOST', 'NOT_SET')}")
     print(f"DEBUG - MONGO_URI: {getattr(settings, 'MONGO_URI', 'NOT_SET')}")
 
-    # 1. Try local MongoDB first
-    mongo_uris.append(("local", "mongodb://localhost:27017"))
+    # Build MongoDB Atlas connection URIs only (no local fallback)
+    mongo_uris = []
 
-    # 2. Try from settings.MONGO_URI (full URI from settings)
+    # 1. Try from settings.MONGO_URI (full URI from settings)
     if settings.MONGO_URI:
         mongo_uris.append(("settings", settings.MONGO_URI))
 
-    # 3. Try to build from separate variables (Atlas)
+    # 2. Try to build from separate variables (Atlas)
     if (
         hasattr(settings, "MONGO_USER")
         and settings.MONGO_USER
@@ -54,7 +54,7 @@ def get_client():
         print(f"DEBUG - Atlas URI generated")
         mongo_uris.append(("atlas", atlas_uri))
 
-    # 4. Try Atlas SQL endpoint (provided by user)
+    # 3. Try Atlas SQL endpoint (provided by user)
     atlas_sql_uri = os.environ.get("MONGO_ATLAS_SQL_URI")
     if atlas_sql_uri:
         mongo_uris.append(("atlas_sql", atlas_sql_uri))
