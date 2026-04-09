@@ -18,6 +18,7 @@ from .models import (
     Reunione,
     Apoderado,
     Recordatorio,
+    AsignacionDocente,
 )
 from .serializers import (
     UsuarioSerializer,
@@ -29,6 +30,7 @@ from .serializers import (
     ReunioneSerializer,
     ApoderadoSerializer,
     RecordatorioSerializer,
+    AsignacionDocenteSerializer,
 )
 
 
@@ -101,12 +103,78 @@ class UsuarioDetail(APIView, MongoObjectIdMixin):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        usuario = self.get_object(pk)
-        if not usuario:
+        recordatorio = self.get_object(pk)
+        if not recordatorio:
             return Response(
-                {"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND
+                {"error": "Recordatorio no encontrado"},
+                status=status.HTTP_404_NOT_FOUND,
             )
-        usuario.delete()
+        recordatorio.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ============ ASIGNACIONES DOCENTE ============
+class AsignacionDocenteList(APIView, MongoObjectIdMixin):
+    """Listar asignaciones o crear nueva"""
+
+    def get(self, request):
+        docente_id = request.query_params.get("docente_id")
+        curso_id = request.query_params.get("curso_id")
+
+        query = {"activo": True}
+        if docente_id:
+            query["docente_id"] = docente_id
+        if curso_id:
+            query["curso_id"] = curso_id
+
+        asignaciones = AsignacionDocente.find(query, sort=[("created_at", -1)])
+        serializer = AsignacionDocenteSerializer(asignaciones, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = AsignacionDocenteSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AsignacionDocenteDetail(APIView, MongoObjectIdMixin):
+    """Detalle de una asignación"""
+
+    def get_object(self, pk):
+        return AsignacionDocente.find_one({"_id": ObjectId(pk)})
+
+    def get(self, request, pk):
+        asignacion = self.get_object(pk)
+        if not asignacion:
+            return Response(
+                {"error": "Asignación no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = AsignacionDocenteSerializer(asignacion)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        asignacion = self.get_object(pk)
+        if not asignacion:
+            return Response(
+                {"error": "Asignación no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = AsignacionDocenteSerializer(asignacion, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        asignacion = self.get_object(pk)
+        if not asignacion:
+            return Response(
+                {"error": "Asignación no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+        # En lugar de eliminar, desactivamos
+        asignacion.activo = False
+        asignacion.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -745,3 +813,109 @@ class RecordatorioDetail(APIView, MongoObjectIdMixin):
             )
         recordatorio.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ============ CURSOS CON ASIGNACIONES ============
+@api_view(["GET"])
+def cursos_con_asignaciones(request):
+    """Obtener cursos con sus docentes y asignaturas"""
+    cursos = Curso.find(sort=[("nombre", 1)])
+    asignaciones = AsignacionDocente.find({"activo": True})
+
+    # Crear mapa de asignaciones por curso
+    asignaciones_por_curso = {}
+    for asig in asignaciones:
+        curso_id = asig.curso_id
+        if curso_id not in asignaciones_por_curso:
+            asignaciones_por_curso[curso_id] = []
+        asignaciones_por_curso[curso_id].append(
+            {
+                "docente_id": asig.docente_id,
+                "asignatura": asig.asignatura,
+                "asignacion_id": asig._id,
+            }
+        )
+
+    # Combinar con cursos
+    resultado = []
+    for curso in cursos:
+        curso_data = CursoSerializer(curso).data
+        curso_data["asignaciones"] = asignaciones_por_curso.get(curso._id, [])
+        resultado.append(curso_data)
+
+    return Response(resultado)
+
+
+@api_view(["GET"])
+def mis_cursos_docente(request):
+    """Obtener los cursos asignados a un docente específico"""
+    docente_id = request.query_params.get("docente_id")
+
+    if not docente_id:
+        return Response(
+            {"error": "docente_id requerido"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Buscar las asignaciones del docente
+    asignaciones = AsignacionDocente.find({"docente_id": docente_id, "activo": True})
+
+    if not asignaciones:
+        return Response([])
+
+    # Obtener los cursos
+    cursos_ids = [asig.curso_id for asig in asignaciones]
+    cursos = []
+
+    for asig in asignaciones:
+        curso = Curso.find_one({"_id": asig.curso_id})
+        if curso:
+            curso_data = CursoSerializer(curso).data
+            curso_data["asignatura"] = asig.asignatura
+            curso_data["asignacion_id"] = asig._id
+            cursos.append(curso_data)
+
+    return Response(cursos)
+
+
+# ============ APODERADOS Y PUPILOS ============
+@api_view(["GET", "POST"])
+def estudiantes_apoderado(request):
+    """Listar o crear estudiantes para un apoderado específico"""
+    if request.method == "GET":
+        # Listar estudiantes de un apoderado
+        apoderado_id = request.query_params.get("apoderado_id")
+
+        if not apoderado_id:
+            return Response(
+                {"error": "apoderado_id requerido"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        estudiantes = Estudiante.find(
+            {"apoderado_id": apoderado_id}, sort=[("apellido", 1)]
+        )
+        serializer = EstudianteSerializer(estudiantes, many=True)
+        return Response(serializer.data)
+
+    elif request.method == "POST":
+        # Crear estudiante y asignar como pupilo del apoderado
+        data = request.data.copy()
+        data["apoderado_id"] = request.data.get("apoderado_id")
+
+        serializer = EstudianteSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+def estudiantes_sin_apoderado(request):
+    """Listar estudiantes que no tienen apoderado asignado"""
+    # Buscar estudiantes sin apoderado_id o con apoderado_id null/empty
+    estudiantes = Estudiante.find(sort=[("apellido", 1)])
+
+    # Filtrar los que no tienen apoderado
+    estudiantes_sin_apoderado = [est for est in estudiantes if not est.apoderado_id]
+
+    serializer = EstudianteSerializer(estudiantes_sin_apoderado, many=True)
+    return Response(serializer.data)

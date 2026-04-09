@@ -14,6 +14,7 @@ from .models import (
     Reunione,
     Apoderado,
     Recordatorio,
+    AsignacionDocente,
 )
 
 
@@ -236,6 +237,29 @@ class RecordatorioSerializer(serializers.Serializer):
         recordatorio = Recordatorio(validated_data)
         recordatorio.save()
         return recordatorio
+
+    def update(self, instance, validated_data):
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        return instance
+
+
+class AsignacionDocenteSerializer(serializers.Serializer):
+    """Serializer para Asignación Docente"""
+
+    id = serializers.CharField(source="_id", read_only=True)
+    docente_id = serializers.CharField(required=True)
+    curso_id = serializers.CharField(required=True)
+    asignatura = serializers.CharField(required=True)
+    activo = serializers.BooleanField(default=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    def create(self, validated_data):
+        asignacion = AsignacionDocente(validated_data)
+        asignacion.save()
+        return asignacion
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():

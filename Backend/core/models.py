@@ -469,3 +469,35 @@ class Recordatorio(BaseModel):
             }
         )
         return data
+
+
+class AsignacionDocente(BaseModel):
+    """Modelo para asignar docentes a cursos con su asignatura"""
+
+    collection_name = "asignaciones_docente"
+
+    def __init__(self, data=None):
+        self.docente_id = None  # ID del usuario docente
+        self.curso_id = None  # ID del curso
+        self.asignatura = None  # Nombre de la asignatura
+        self.activo = True  # Si la asignación está activa
+        super().__init__(data)
+
+    def _load_from_dict(self, data):
+        super()._load_from_dict(data)
+        self.docente_id = data.get("docente_id")
+        self.curso_id = data.get("curso_id")
+        self.asignatura = data.get("asignatura")
+        self.activo = data.get("activo", True)
+
+    def to_dict(self):
+        data = super().to_dict()
+        data.update(
+            {
+                "docente_id": self.docente_id,
+                "curso_id": self.curso_id,
+                "asignatura": self.asignatura,
+                "activo": self.activo,
+            }
+        )
+        return data

@@ -56,6 +56,35 @@ urlpatterns = [
         views.RecordatorioDetail.as_view(),
         name="recordatorio-detail",
     ),
+    # Asignaciones Docente
+    path(
+        "asignaciones-docente",
+        views.AsignacionDocenteList.as_view(),
+        name="asignacion-docente-list",
+    ),
+    path(
+        "asignaciones-docente/<str:pk>",
+        views.AsignacionDocenteDetail.as_view(),
+        name="asignacion-docente-detail",
+    ),
+    # Cursos con asignaciones
+    path(
+        "cursos-con-asignaciones",
+        views.cursos_con_asignaciones,
+        name="cursos-con-asignaciones",
+    ),
+    path("mis-cursos-docente", views.mis_cursos_docente, name="mis-cursos-docente"),
+    # Apoderados y Pupilos
+    path(
+        "estudiantes-apoderado",
+        views.estudiantes_apoderado,
+        name="estudiantes-apoderado",
+    ),
+    path(
+        "estudiantes-sin-apoderado",
+        views.estudiantes_sin_apoderado,
+        name="estudiantes-sin-apoderado",
+    ),
     # Dashboards
     path("dashboard/docente", views.dashboard_docente, name="dashboard-docente"),
     path("dashboard/apoderado", views.dashboard_apoderado, name="dashboard-apoderado"),
