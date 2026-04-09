@@ -206,20 +206,29 @@ export class AdminPage implements OnInit {
     }
     
     this.saving.set(true);
+    console.log('DEBUG - Enviando datos:', {
+      docente_id: this.asignacionDocenteForm.docente_id,
+      curso_id: this.asignacionDocenteForm.curso_id,
+      asignatura: this.asignacionDocenteForm.asignatura
+    });
+    
     this.api.createAsignacionDocente({
       docente_id: this.asignacionDocenteForm.docente_id,
       curso_id: this.asignacionDocenteForm.curso_id,
       asignatura: this.asignacionDocenteForm.asignatura
     }).subscribe({
-      next: () => {
+      next: (data) => {
+        console.log('DEBUG - Respuesta exitosa:', data);
         this.saving.set(false);
         this.showMessage('Asignación creada');
         this.closeAsignacionDocenteDialog();
         this.loadAsignacionesDocente();
       },
-      error: () => {
+      error: (err) => {
+        console.error('DEBUG - Error completo:', err);
         this.saving.set(false);
-        this.showMessage('Error al crear asignación');
+        const msg = err.error ? JSON.stringify(err.error) : 'Error al crear asignación';
+        this.showMessage(msg);
       }
     });
   }

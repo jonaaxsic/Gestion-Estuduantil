@@ -44,33 +44,38 @@ class BaseModel:
 
     def save(self):
         """Guardar en MongoDB"""
-        now = datetime.now()
-        data = self.to_dict()
+        try:
+            now = datetime.now()
+            data = self.to_dict()
 
-        print(f"DEBUG BaseModel.save() - collection: {self.collection_name}")
-        print(f"DEBUG BaseModel.save() - data to save: {data}")
+            print(f"DEBUG Model.save() - collection: {self.collection_name}")
+            print(f"DEBUG Model.save() - data: {data}")
 
-        if self._id:
-            # Update - exclude _id from the data to prevent immutable field error
-            data.pop("_id", None)
-            data["updated_at"] = now
-            result = self.get_collection().update_one(
-                {"_id": ObjectId(self._id)}, {"$set": data}
-            )
-            print(
-                f"DEBUG BaseModel.save() - Updated, modified: {result.modified_count}"
-            )
-        else:
-            # Insert
-            data["created_at"] = now
-            data["updated_at"] = now
-            result = self.get_collection().insert_one(data)
-            self._id = str(result.inserted_id)
-            self.created_at = data["created_at"]
-            self.updated_at = data["updated_at"]
-            print(f"DEBUG BaseModel.save() - Inserted, _id: {self._id}")
+            if self._id:
+                # Update
+                data.pop("_id", None)
+                data["updated_at"] = now
+                result = self.get_collection().update_one(
+                    {"_id": ObjectId(self._id)}, {"$set": data}
+                )
+                print(f"DEBUG Model.save() - Updated OK")
+            else:
+                # Insert
+                data["created_at"] = now
+                data["updated_at"] = now
+                result = self.get_collection().insert_one(data)
+                self._id = str(result.inserted_id)
+                self.created_at = data["created_at"]
+                self.updated_at = data["updated_at"]
+                print(f"DEBUG Model.save() - Inserted OK, _id: {self._id}")
 
-        return self
+            return self
+        except Exception as e:
+            print(f"ERROR in Model.save() - {type(e).__name__}: {e}")
+            import traceback
+
+            traceback.print_exc()
+            raise
 
     def delete(self):
         """Eliminar de MongoDB"""
