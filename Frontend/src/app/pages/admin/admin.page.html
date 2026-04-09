@@ -1,9 +1,16 @@
 <div class="header-bar">
   <div class="header-left">
+    <button class="btn-icon" (click)="toggleCursosPanel()">
+      <span class="material-icons">menu</span>
+    </button>
     <span class="material-icons header-icon">admin_panel_settings</span>
     <h1 class="header-title">Administración</h1>
   </div>
   <div class="header-right">
+    <button class="btn-primary" (click)="openRecordatorioDialog()">
+      <span class="material-icons">add_alert</span>
+      Recordatorio
+    </button>
     <div class="user-info">
       <span class="user-name">{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
       @if (auth.user()?.rut) {
@@ -17,7 +24,36 @@
   </div>
 </div>
 
-<div class="page-container">
+<!-- Side Panel de Cursos -->
+@if (showCursosPanel()) {
+  <div class="side-panel">
+    <div class="side-panel-header">
+      <h3><span class="material-icons">class</span> Cursos</h3>
+      <button class="close-btn" (click)="toggleCursosPanel()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="side-panel-body">
+      <button class="btn btn-primary full-width" (click)="activeTab.set('cursos')">
+        <span class="material-icons">add</span>
+        Crear Nuevo Curso
+      </button>
+      @for (curso of cursos(); track curso.id) {
+        <div class="course-item" (click)="selectCurso(curso)">
+          <div class="course-icon">
+            <span class="material-icons">school</span>
+          </div>
+          <div class="course-info">
+            <span class="course-name">{{ curso.nivel }} {{ curso.nombre }}</span>
+            <span class="course-students">{{ getEstudiantesCount(curso.id) }} estudiantes</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<div class="page-container" [class.with-panel]="showCursosPanel()">
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab" [class.active]="activeTab() === 'usuarios'" (click)="activeTab.set('usuarios')">
@@ -31,6 +67,10 @@
     <button class="tab" [class.active]="activeTab() === 'cursos'" (click)="activeTab.set('cursos')">
       <span class="material-icons">class</span>
       Cursos
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'docentes'" (click)="activeTab.set('docentes')">
+      <span class="material-icons">teacher</span>
+      Docentes
     </button>
   </div>
   
@@ -326,6 +366,103 @@
       </div>
     </div>
   }
+  
+  <!-- DOCENTES TAB - Asignaciones Docente-Curso-Asignatura -->
+  @if (activeTab() === 'docentes') {
+    <div class="content-card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <h3 class="card-title">
+            <span class="material-icons">teacher</span>
+            Asignación de Docentes a Cursos
+          </h3>
+        </div>
+        <div class="card-header-right">
+          <button class="btn-new" (click)="openAsignacionDocenteDialog()">
+            <span class="material-icons">add</span>
+            Nueva Asignación
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Docente</th>
+              <th>Curso</th>
+              <th>Asignatura</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (asignacion of asignacionesDocente(); track asignacion.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar">{{ getDocenteNombre(asignacion.docente_id)?.charAt(0) }}</div>
+                    <span class="user-name-table">{{ getDocenteNombre(asignacion.docente_id) }}</span>
+                  </div>
+                </td>
+                <td>{{ getCursoNombre(asignacion.curso_id) }}</td>
+                <td>
+                  <span class="badge">{{ asignacion.asignatura }}</span>
+                </td>
+                <td>
+                  <button class="btn-icon" (click)="deleteAsignacionDocente(asignacion)" title="Eliminar">
+                    <span class="material-icons">delete</span>
+                  </button>
+                </td>
+              </tr>
+            }
+            @if (asignacionesDocente().length === 0) {
+              <tr>
+                <td colspan="4" class="text-center">No hay asignaciones registradas</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Recordatorios Section -->
+    <div class="content-card" style="margin-top: 24px;">
+      <div class="card-header">
+        <div class="card-header-left">
+          <h3 class="card-title">
+            <span class="material-icons">notifications</span>
+            Mis Recordatorios
+          </h3>
+        </div>
+      </div>
+      <div class="card-body">
+        @if (recordatorios().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">info</span>
+            <p>No hay recordatorios</p>
+          </div>
+        } @else {
+          @for (rec of recordatorios(); track rec.id) {
+            <div class="list-item">
+              <div class="list-icon" [class.completed]="rec.completada" [class.pending]="!rec.completada">
+                <span class="material-icons">{{ rec.completada ? 'check_circle' : 'schedule' }}</span>
+              </div>
+              <div class="list-content">
+                <span class="title" [style.text-decoration]="rec.completada ? 'line-through' : 'none'">{{ rec.titulo }}</span>
+                <span class="subtitle">{{ rec.fecha_limite ? 'Para: ' + rec.fecha_limite : 'Sin fecha' }}</span>
+              </div>
+              <button class="btn-icon" (click)="toggleRecordatorioCompleted(rec)">
+                <span class="material-icons">{{ rec.completada ? 'undo' : 'check' }}</span>
+              </button>
+              <button class="btn-icon delete" (click)="deleteRecordatorio(rec)">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
 </div>
 
 <!-- User Dialog -->
@@ -522,6 +659,98 @@
           <button type="button" class="btn-cancel" (click)="closeCursoDialog()">Cancelar</button>
           <button type="submit" class="btn-save">
             {{ editingCurso() ? 'Actualizar' : 'Crear' }} Curso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Recordatorio Dialog -->
+@if (showRecordatorioDialog()) {
+  <div class="dialog-overlay" (click)="closeRecordatorioDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h2 class="dialog-title">
+          <span class="material-icons">add_alert</span>
+          Nuevo Recordatorio
+        </h2>
+        <button class="btn-icon" (click)="closeRecordatorioDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="saveRecordatorio()" class="dialog-form">
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" [(ngModel)]="recordatorioForm.titulo" name="titulo" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-input" [(ngModel)]="recordatorioForm.descripcion" name="descripcion" rows="3"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Fecha Límite (opcional)</label>
+          <input type="date" class="form-input" [(ngModel)]="recordatorioForm.fecha_limite" name="fecha_limite">
+        </div>
+        
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" (click)="closeRecordatorioDialog()">Cancelar</button>
+          <button type="submit" class="btn-save" [disabled]="saving()">
+            {{ saving() ? 'Guardando...' : 'Crear' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Asignacion Docente Dialog -->
+@if (showAsignacionDocenteDialog()) {
+  <div class="dialog-overlay" (click)="closeAsignacionDocenteDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h2 class="dialog-title">
+          <span class="material-icons">teacher</span>
+          Asignar Docente a Curso
+        </h2>
+        <button class="btn-icon" (click)="closeAsignacionDocenteDialog()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <form (ngSubmit)="saveAsignacionDocente()" class="dialog-form">
+        <div class="form-group">
+          <label class="form-label">Docente</label>
+          <select class="form-input" [(ngModel)]="asignacionDocenteForm.docente_id" name="docente_id" required>
+            <option value="">Seleccionar docente</option>
+            @for (docente of getDocentes(); track docente.id) {
+              <option [value]="docente.id">{{ docente.nombre }} {{ docente.apellido }}</option>
+            }
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Curso</label>
+          <select class="form-input" [(ngModel)]="asignacionDocenteForm.curso_id" name="curso_id" required>
+            <option value="">Seleccionar curso</option>
+            @for (curso of cursos(); track curso.id) {
+              <option [value]="curso.id">{{ curso.nivel }} {{ curso.nombre }}</option>
+            }
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Asignatura</label>
+          <input type="text" class="form-input" [(ngModel)]="asignacionDocenteForm.asignatura" name="asignatura" placeholder="Ej: Historia, Matemáticas" required>
+        </div>
+        
+        <div class="dialog-actions">
+          <button type="button" class="btn-cancel" (click)="closeAsignacionDocenteDialog()">Cancelar</button>
+          <button type="submit" class="btn-save" [disabled]="saving()">
+            {{ saving() ? 'Guardando...' : 'Asignar' }}
           </button>
         </div>
       </form>

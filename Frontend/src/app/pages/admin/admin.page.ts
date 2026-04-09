@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Usuario, Estudiante, Curso } from '../../shared/models';
+import { Usuario, Estudiante, Curso, Recordatorio, AsignacionDocente } from '../../shared/models';
 
 @Component({
   selector: 'app-admin',
@@ -23,14 +23,20 @@ export class AdminPage implements OnInit {
   usuarios = signal<Usuario[]>([]);
   estudiantes = signal<Estudiante[]>([]);
   cursos = signal<Curso[]>([]);
+  recordatorios = signal<Recordatorio[]>([]);
+  asignacionesDocente = signal<AsignacionDocente[]>([]);
   
   // Tab state
-  activeTab = signal<'usuarios' | 'estudiantes' | 'cursos'>('usuarios');
+  activeTab = signal<'usuarios' | 'estudiantes' | 'cursos' | 'docentes'>('usuarios');
   
   // Dialog states
   showUserDialog = signal(false);
   showStudentDialog = signal(false);
   showCursoDialog = signal(false);
+  showRecordatorioDialog = signal(false);
+  showAsignacionDocenteDialog = signal(false);
+  showCursosPanel = signal(false);
+  selectedCurso = signal<Curso | null>(null);
   
   // Editing states
   editingUser = signal<Usuario | null>(null);
@@ -69,6 +75,22 @@ export class AdminPage implements OnInit {
     nivel: '',
     ano: new Date().getFullYear()
   };
+  
+  // Recordatorio form
+  recordatorioForm = {
+    titulo: '',
+    descripcion: '',
+    fecha_limite: ''
+  };
+  
+  // Asignacion docente form
+  asignacionDocenteForm = {
+    docente_id: '',
+    curso_id: '',
+    asignatura: ''
+  };
+  
+  saving = signal(false);
 
   ngOnInit(): void {
     this.loadAll();
@@ -78,6 +100,147 @@ export class AdminPage implements OnInit {
     this.loadUsuarios();
     this.loadEstudiantes();
     this.loadCursos();
+    this.loadRecordatorios();
+    this.loadAsignacionesDocente();
+  }
+  
+  loadRecordatorios(): void {
+    const userId = this.auth.user()?.id;
+    if (userId) {
+      this.api.getRecordatorios(userId).subscribe({
+        next: (data) => this.recordatorios.set(data),
+        error: () => {}
+      });
+    }
+  }
+  
+  loadAsignacionesDocente(): void {
+    this.api.getAsignacionesDocente().subscribe({
+      next: (data) => this.asignacionesDocente.set(data),
+      error: () => {}
+    });
+  }
+  
+  // Toggle panel lateral
+  toggleCursosPanel(): void {
+    this.showCursosPanel.update(v => !v);
+  }
+  
+  selectCurso(curso: Curso): void {
+    this.selectedCurso.set(curso);
+  }
+  
+  // Recordatorio methods
+  openRecordatorioDialog(): void {
+    this.recordatorioForm = { titulo: '', descripcion: '', fecha_limite: '' };
+    this.showRecordatorioDialog.set(true);
+  }
+  
+  closeRecordatorioDialog(): void {
+    this.showRecordatorioDialog.set(false);
+  }
+  
+  saveRecordatorio(): void {
+    if (!this.recordatorioForm.titulo) return;
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+    
+    this.saving.set(true);
+    this.api.createRecordatorio({
+      usuario_id: userId,
+      titulo: this.recordatorioForm.titulo,
+      descripcion: this.recordatorioForm.descripcion,
+      fecha_limite: this.recordatorioForm.fecha_limite || undefined,
+      completada: false
+    }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.showMessage('Recordatorio creado');
+        this.closeRecordatorioDialog();
+        this.loadRecordatorios();
+      },
+      error: () => {
+        this.saving.set(false);
+        this.showMessage('Error al crear recordatorio');
+      }
+    });
+  }
+  
+  toggleRecordatorioCompleted(rec: Recordatorio): void {
+    if (rec.id) {
+      this.api.updateRecordatorio(rec.id, { completada: !rec.completada }).subscribe({
+        next: () => this.loadRecordatorios(),
+        error: () => this.showMessage('Error')
+      });
+    }
+  }
+  
+  deleteRecordatorio(rec: Recordatorio): void {
+    if (rec.id && confirm('¿Eliminar?')) {
+      this.api.deleteRecordatorio(rec.id).subscribe({
+        next: () => { this.showMessage('Eliminado'); this.loadRecordatorios(); },
+        error: () => this.showMessage('Error')
+      });
+    }
+  }
+  
+  // Asignacion docente methods
+  openAsignacionDocenteDialog(): void {
+    this.asignacionDocenteForm = { docente_id: '', curso_id: '', asignatura: '' };
+    this.showAsignacionDocenteDialog.set(true);
+  }
+  
+  closeAsignacionDocenteDialog(): void {
+    this.showAsignacionDocenteDialog.set(false);
+  }
+  
+  saveAsignacionDocente(): void {
+    if (!this.asignacionDocenteForm.docente_id || !this.asignacionDocenteForm.curso_id || !this.asignacionDocenteForm.asignatura) {
+      this.showMessage('Complete todos los campos');
+      return;
+    }
+    
+    this.saving.set(true);
+    this.api.createAsignacionDocente({
+      docente_id: this.asignacionDocenteForm.docente_id,
+      curso_id: this.asignacionDocenteForm.curso_id,
+      asignatura: this.asignacionDocenteForm.asignatura
+    }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.showMessage('Asignación creada');
+        this.closeAsignacionDocenteDialog();
+        this.loadAsignacionesDocente();
+      },
+      error: () => {
+        this.saving.set(false);
+        this.showMessage('Error al crear asignación');
+      }
+    });
+  }
+  
+  deleteAsignacionDocente(asignacion: AsignacionDocente): void {
+    if (asignacion.id && confirm('¿Eliminar esta asignación?')) {
+      this.api.deleteAsignacionDocente(asignacion.id).subscribe({
+        next: () => { this.showMessage('Asignación eliminada'); this.loadAsignacionesDocente(); },
+        error: () => this.showMessage('Error')
+      });
+    }
+  }
+  
+  getDocenteNombre(docenteId: string): string {
+    const docente = this.usuarios().find(u => u.id === docenteId);
+    return docente ? `${docente.nombre} ${docente.apellido}` : 'Docente';
+  }
+  
+  getCursoNombre(cursoId: string | undefined): string {
+    if (!cursoId) return 'Sin curso';
+    const curso = this.cursos().find(c => c.id === cursoId);
+    return curso ? `${curso.nivel} ${curso.nombre}` : 'Sin curso';
+  }
+  
+  getDocentes(): Usuario[] {
+    return this.usuarios().filter(u => u.rol === 'docente');
   }
   
   loadUsuarios(): void {
@@ -112,12 +275,6 @@ export class AdminPage implements OnInit {
   getEstudiantesCount(cursoId: string | undefined): number {
     if (!cursoId) return 0;
     return this.estudiantes().filter(e => e.curso_id === cursoId).length;
-  }
-  
-  getCursoNombre(cursoId: string | undefined): string {
-    if (!cursoId) return 'Sin curso';
-    const curso = this.cursos().find(c => c.id === cursoId);
-    return curso ? curso.nivel + ' ' + curso.nombre : 'Sin curso';
   }
 
   applyFilter(): void {

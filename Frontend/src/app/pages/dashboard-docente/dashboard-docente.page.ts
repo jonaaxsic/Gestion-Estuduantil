@@ -11,7 +11,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Curso, Evaluacion, Anotacion, Estudiante, Asistencia, Reunione } from '../../shared/models';
+import { Curso, Evaluacion, Anotacion, Estudiante, Asistencia, Reunione, Recordatorio, AsignacionDocente } from '../../shared/models';
 
 @Component({
   selector: 'app-dashboard-docente',
@@ -39,12 +39,17 @@ export class DashboardDocentePage implements OnInit {
   estudiantes = signal<Estudiante[]>([]);
   evaluaciones = signal<Evaluacion[]>([]);
   anotaciones = signal<Anotacion[]>([]);
-  
+  recordatorios = signal<Recordatorio[]>([]);
+  asignacionesDocente = signal<AsignacionDocente[]>([]);
+
   // Modal states
   showAsistenciaModal = signal(false);
   showEvaluacionModal = signal(false);
   showAnotacionModal = signal(false);
   showReunionModal = signal(false);
+  showRecordatorioModal = signal(false);
+  showCursosPanel = signal(false);
+  selectedCurso = signal<Curso | null>(null);
   saving = signal(false);
   successMessage = signal('');
   
@@ -79,6 +84,12 @@ export class DashboardDocentePage implements OnInit {
     descripcion: ''
   };
   
+  recordatorioForm = {
+    titulo: '',
+    descripcion: '',
+    fecha_limite: ''
+  };
+  
   ngOnInit(): void {
     this.loadData();
   }
@@ -88,6 +99,15 @@ export class DashboardDocentePage implements OnInit {
     this.api.getEstudiantes().subscribe(data => this.estudiantes.set(data));
     this.api.getEvaluaciones().subscribe(data => this.evaluaciones.set(data));
     this.api.getAnotaciones().subscribe(data => this.anotaciones.set(data));
+    
+    // Cargar recordatorios del usuario actual
+    const userId = this.auth.user()?.id;
+    if (userId) {
+      this.api.getRecordatorios(userId).subscribe(data => this.recordatorios.set(data));
+    }
+    
+    // Cargar asignaciones del docente
+    this.api.getAsignacionesDocente().subscribe(data => this.asignacionesDocente.set(data));
   }
   
   loadEstudiantesPorCurso(): void {
@@ -149,11 +169,35 @@ export class DashboardDocentePage implements OnInit {
     this.showReunionModal.set(true);
   }
   
+  openRecordatorioDialog(): void {
+    this.recordatorioForm = {
+      titulo: '',
+      descripcion: '',
+      fecha_limite: ''
+    };
+    this.showRecordatorioModal.set(true);
+  }
+  
+  toggleCursosPanel(): void {
+    this.showCursosPanel.update(v => !v);
+  }
+  
+  selectCurso(curso: Curso): void {
+    this.selectedCurso.set(curso);
+    // Cargar estudiantes del curso
+    if (curso.id) {
+      this.api.getEstudiantes(curso.id).subscribe(data => {
+        this.estudiantes.set(data);
+      });
+    }
+  }
+  
   closeModals(): void {
     this.showAsistenciaModal.set(false);
     this.showEvaluacionModal.set(false);
     this.showAnotacionModal.set(false);
     this.showReunionModal.set(false);
+    this.showRecordatorioModal.set(false);
   }
   
   showSuccess(msg: string): void {
@@ -274,6 +318,64 @@ export class DashboardDocentePage implements OnInit {
     });
   }
   
+  saveRecordatorio(): void {
+    if (!this.recordatorioForm.titulo) {
+      alert('Por favor ingrese un título');
+      return;
+    }
+    
+    const userId = this.auth.user()?.id;
+    if (!userId) return;
+    
+    this.saving.set(true);
+    this.api.createRecordatorio({
+      usuario_id: userId,
+      titulo: this.recordatorioForm.titulo,
+      descripcion: this.recordatorioForm.descripcion,
+      fecha_limite: this.recordatorioForm.fecha_limite || undefined,
+      completada: false
+    }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.closeModals();
+        this.showSuccess('Recordatorio creado correctamente');
+        this.loadData();
+      },
+      error: () => {
+        this.saving.set(false);
+        alert('Error al crear recordatorio');
+      }
+    });
+  }
+  
+  toggleRecordatorioCompleted(recordatorio: Recordatorio): void {
+    if (recordatorio.id) {
+      this.api.updateRecordatorio(recordatorio.id, {
+        completada: !recordatorio.completada
+      }).subscribe({
+        next: () => this.loadData(),
+        error: () => alert('Error al actualizar recordatorio')
+      });
+    }
+  }
+  
+  deleteRecordatorio(recordatorio: Recordatorio): void {
+    if (recordatorio.id && confirm('¿Eliminar este recordatorio?')) {
+      this.api.deleteRecordatorio(recordatorio.id).subscribe({
+        next: () => {
+          this.showSuccess('Recordatorio eliminado');
+          this.loadData();
+        },
+        error: () => alert('Error al eliminar recordatorio')
+      });
+    }
+  }
+  
+  getCursoNombre(cursoId: string): string {
+    const curso = this.cursos().find(c => c.id === cursoId);
+    return curso ? `${curso.nivel} ${curso.nombre}` : 'Curso';
+  }
+
   logout(): void {
     this.auth.logout();
   }

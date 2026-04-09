@@ -10,6 +10,8 @@ import {
   Anotacion,
   Reunione,
   Apoderado,
+  Recordatorio,
+  AsignacionDocente,
   LoginResponse,
 } from '../../shared/models';
 import { environment } from '../../../environments/environment';
@@ -221,5 +223,53 @@ export class ApiService {
 
   deleteApoderado(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/apoderados/${id}`, { headers: this.jsonHeaders });
+  }
+
+  // ============ RECORDATORIOS ============
+  getRecordatorios(usuarioId?: string): Observable<Recordatorio[]> {
+    const url = usuarioId
+      ? `${this.baseUrl}/recordatorios?usuario_id=${usuarioId}`
+      : `${this.baseUrl}/recordatorios`;
+    return this.http.get<Recordatorio[]>(url, { headers: this.jsonHeaders });
+  }
+
+  getRecordatorio(id: string): Observable<Recordatorio> {
+    return this.http.get<Recordatorio>(`${this.baseUrl}/recordatorios/${id}`, { headers: this.jsonHeaders });
+  }
+
+  createRecordatorio(data: Partial<Recordatorio>): Observable<Recordatorio> {
+    return this.http.post<Recordatorio>(`${this.baseUrl}/recordatorios`, data, { headers: this.jsonHeaders });
+  }
+
+  updateRecordatorio(id: string, data: Partial<Recordatorio>): Observable<Recordatorio> {
+    return this.http.put<Recordatorio>(`${this.baseUrl}/recordatorios/${id}`, data, { headers: this.jsonHeaders });
+  }
+
+  deleteRecordatorio(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/recordatorios/${id}`, { headers: this.jsonHeaders });
+  }
+
+  // ============ ASIGNACIONES DOCENTE ============
+  getAsignacionesDocente(docenteId?: string): Observable<AsignacionDocente[]> {
+    const url = docenteId
+      ? `${this.baseUrl}/asignaciones-docente?docente_id=${docenteId}`
+      : `${this.baseUrl}/asignaciones-docente`;
+    return this.http.get<AsignacionDocente[]>(url, { headers: this.jsonHeaders });
+  }
+
+  getAsignacionDocente(id: string): Observable<AsignacionDocente> {
+    return this.http.get<AsignacionDocente>(`${this.baseUrl}/asignaciones-docente/${id}`, { headers: this.jsonHeaders });
+  }
+
+  createAsignacionDocente(data: Partial<AsignacionDocente>): Observable<AsignacionDocente> {
+    return this.http.post<AsignacionDocente>(`${this.baseUrl}/asignaciones-docente`, data, { headers: this.jsonHeaders });
+  }
+
+  updateAsignacionDocente(id: string, data: Partial<AsignacionDocente>): Observable<AsignacionDocente> {
+    return this.http.put<AsignacionDocente>(`${this.baseUrl}/asignaciones-docente/${id}`, data, { headers: this.jsonHeaders });
+  }
+
+  deleteAsignacionDocente(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/asignaciones-docente/${id}`, { headers: this.jsonHeaders });
   }
 }

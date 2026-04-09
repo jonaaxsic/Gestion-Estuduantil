@@ -4,6 +4,10 @@
     <h1 class="header-title">Panel del Apoderado</h1>
   </div>
   <div class="header-right">
+    <button class="btn btn-primary" (click)="openRecordatorioDialog()">
+      <span class="material-icons">add_alert</span>
+      Nuevo Recordatorio
+    </button>
     <div class="user-info">
       <span class="user-name">{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
       <span class="user-rut">RUT: {{ auth.user()?.rut || 'Sin RUT' }}</span>
@@ -111,6 +115,42 @@
   
   <!-- Content Grid -->
   <div class="card-grid">
+    <!-- Recordatorios -->
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons">notifications</span>
+          Mis Recordatorios
+        </h3>
+      </div>
+      <div class="card-body">
+        @if (recordatorios().length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">info</span>
+            <p>No hay recordatorios</p>
+          </div>
+        } @else {
+          @for (rec of recordatorios(); track rec.id) {
+            <div class="list-item">
+              <div class="list-icon" [class.completed]="rec.completada" [class.pending]="!rec.completada">
+                <span class="material-icons">{{ rec.completada ? 'check_circle' : 'schedule' }}</span>
+              </div>
+              <div class="list-content">
+                <span class="title" [style.text-decoration]="rec.completada ? 'line-through' : 'none'">{{ rec.titulo }}</span>
+                <span class="subtitle">{{ rec.fecha_limite ? 'Para: ' + rec.fecha_limite : 'Sin fecha' }}</span>
+              </div>
+              <button class="btn-icon-small" (click)="toggleRecordatorioCompleted(rec)">
+                <span class="material-icons">{{ rec.completada ? 'undo' : 'check' }}</span>
+              </button>
+              <button class="btn-icon-small delete" (click)="deleteRecordatorio(rec)">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          }
+        }
+      </div>
+    </div>
+    
     <!-- Asistencia -->
     <div class="content-card">
       <div class="card-header">
@@ -205,3 +245,44 @@
     </div>
   </div>
 </div>
+
+<!-- Recordatorio Modal -->
+@if (showRecordatorioModal()) {
+  <div class="modal-overlay" (click)="closeRecordatorioModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><span class="material-icons">add_alert</span> Nuevo Recordatorio</h2>
+        <button class="close-btn" (click)="closeRecordatorioModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" [(ngModel)]="recordatorioForm.titulo" placeholder="Ej: Reunión de padres">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-textarea" [(ngModel)]="recordatorioForm.descripcion" placeholder="Detalles..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha Límite (opcional)</label>
+          <input type="date" class="form-input" [(ngModel)]="recordatorioForm.fecha_limite">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeRecordatorioModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="saveRecordatorio()" [disabled]="saving()">
+          {{ saving() ? 'Guardando...' : 'Crear' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (successMessage()) {
+  <div class="toast success">
+    <span class="material-icons">check_circle</span>
+    {{ successMessage() }}
+  </div>
+}

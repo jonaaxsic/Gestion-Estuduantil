@@ -504,3 +504,194 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Side Panel */
+.side-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100vh;
+  background: white;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  animation: slideInLeft 0.3s ease;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.side-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.side-panel-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.side-panel-header h3 .material-icons {
+  color: #667eea;
+}
+
+.side-panel-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.side-panel-body .full-width {
+  width: 100%;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.course-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+  border: 2px solid #e2e8f0;
+}
+
+.course-item:hover {
+  background: #f8fafc;
+  border-color: #667eea;
+}
+
+.course-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-icon .material-icons {
+  color: #667eea;
+  font-size: 20px;
+}
+
+.course-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.course-students {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.page-container.with-panel {
+  margin-left: 300px;
+  transition: margin-left 0.3s ease;
+}
+
+/* List icons */
+.list-icon.completed { background: #22c55e; }
+.list-icon.pending { background: #f59e0b; }
+
+/* Badge */
+.badge {
+  background: #e0e7ff;
+  color: #4338ca;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Primary button */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #334155;
+}
+
+/* Delete button */
+.btn-icon.delete:hover {
+  color: #ef4444;
+  background: #fee2e2;
+}
+
+/* List item */
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.list-item:hover {
+  background: #f8fafc;
+}
+
+.list-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.list-icon .material-icons {
+  color: white;
+  font-size: 20px;
+}
+
+.list-content {
+  flex: 1;
+}
+
+.list-content .title {
+  display: block;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.list-content .subtitle {
+  display: block;
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 2px;
+}

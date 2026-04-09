@@ -96,6 +96,27 @@ export interface Apoderado {
   updated_at?: string;
 }
 
+export interface Recordatorio {
+  id?: string;
+  usuario_id: string;
+  titulo: string;
+  descripcion?: string;
+  fecha_creacion?: string;
+  fecha_limite?: string;
+  completada: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface AsignacionDocente {
+  id?: string;
+  docente_id: string;
+  curso_id: string;
+  asignatura: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface LoginResponse {
   success: boolean;
   user?: Usuario;
