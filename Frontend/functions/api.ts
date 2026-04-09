@@ -57,14 +57,7 @@ export default {
       }
     }
 
-    // Root
-    if (path === "/" || path === "") {
-      return createResponse({
-        status: "ok",
-        message: "Gestion Estudiantil API - Cloudflare Pages"
-      });
-    }
-
-    return createResponse({ error: "Endpoint no encontrado" }, 404);
+    // Para rutas que no son API, devolver null para que Cloudflare sirva archivos estáticos
+    return null;
   },
 };
