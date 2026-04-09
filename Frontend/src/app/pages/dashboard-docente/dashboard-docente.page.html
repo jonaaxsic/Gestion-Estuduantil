@@ -16,7 +16,6 @@
     </button>
     <div class="user-info">
       <span class="user-name">{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
-      <span class="user-rut">{{ auth.user()?.rut }}</span>
     </div>
     <button class="btn-logout" (click)="logout()">
       <span class="material-icons">logout</span>
