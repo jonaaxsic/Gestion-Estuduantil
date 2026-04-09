@@ -1,4 +1,4 @@
-.login-container {
+.registro-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -13,45 +13,50 @@
 
 /* Mobile-first responsive adjustments */
 @media (max-width: 480px) {
-  .login-container {
+  .registro-container {
     padding: 12px;
   }
   
-  .login-card {
+  .registro-card {
     padding: 24px 20px;
     border-radius: 16px;
   }
   
-  .login-icon {
+  .registro-icon {
     width: 56px;
     height: 56px;
     border-radius: 12px;
   }
   
-  .login-icon .material-icons {
+  .registro-icon .material-icons {
     font-size: 28px;
   }
   
-  .login-title {
+  .registro-title {
     font-size: 1.25rem;
   }
   
-  .login-subtitle {
+  .registro-subtitle {
     font-size: 0.8rem;
   }
   
   .form-input {
-    padding: 14px 12px 14px 42px;
+    padding: 14px 12px;
     font-size: 16px; /* Prevent zoom on iOS */
   }
   
-  .login-btn {
+  .registro-btn {
     height: 48px;
     font-size: 1rem;
   }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
 }
 
-.login-container::before {
+.registro-container::before {
   content: '';
   position: absolute;
   top: 0;
@@ -62,9 +67,9 @@
   z-index: 1;
 }
 
-.login-card {
+.registro-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   padding: 32px 40px;
   background: white;
   border-radius: 20px;
@@ -73,12 +78,12 @@
   z-index: 2;
 }
 
-.login-header {
+.registro-header {
   text-align: center;
   margin-bottom: 28px;
 }
 
-.login-icon {
+.registro-icon {
   width: 64px;
   height: 64px;
   background: #1e293b;
@@ -89,30 +94,37 @@
   margin: 0 auto 16px;
 }
 
-.login-icon .material-icons {
+.registro-icon .material-icons {
   color: white;
   font-size: 32px;
 }
 
-.login-title {
+.registro-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 6px;
 }
 
-.login-subtitle {
+.registro-subtitle {
   color: #64748b;
   font-size: 0.85rem;
   margin: 0;
 }
 
-.login-form {
+.registro-form {
   margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 0;
 }
 
 .form-group {
   margin-bottom: 16px;
+  flex: 1;
 }
 
 .form-label {
@@ -123,22 +135,13 @@
   margin-bottom: 6px;
 }
 
-.input-wrapper {
-  position: relative;
-}
-
-.input-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  font-size: 18px;
+.required {
+  color: #dc2626;
 }
 
 .form-input {
   width: 100%;
-  padding: 12px 12px 12px 42px;
+  padding: 12px 14px;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   font-size: 0.9rem;
@@ -155,6 +158,32 @@
 
 .form-input::placeholder {
   color: #9ca3af;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  color: #166534;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.success-message .material-icons {
+  font-size: 18px;
 }
 
 .error-message {
@@ -174,7 +203,7 @@
   font-size: 18px;
 }
 
-.login-btn {
+.registro-btn {
   width: 100%;
   height: 48px;
   font-size: 0.95rem;
@@ -189,40 +218,36 @@
   color: white;
   cursor: pointer;
   transition: all 0.2s;
+  margin-top: 8px;
 }
 
-.login-btn:hover:not(:disabled) {
+.registro-btn:hover:not(:disabled) {
   background: #334155;
 }
 
-.login-btn:disabled {
+.registro-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-.login-footer {
+.registro-footer {
   text-align: center;
   padding-top: 16px;
   border-top: 1px solid #e5e7eb;
 }
 
-.login-footer p {
-  color: #9ca3af;
-  font-size: 0.75rem;
+.registro-footer p {
+  color: #64748b;
+  font-size: 0.85rem;
   margin: 0;
 }
 
-.login-footer a {
+.registro-footer a {
   color: #1e293b;
   font-weight: 600;
   text-decoration: none;
 }
 
-.login-footer a:hover {
+.registro-footer a:hover {
   text-decoration: underline;
-}
-
-.help-text {
-  margin-top: 8px !important;
-  color: #9ca3af !important;
 }

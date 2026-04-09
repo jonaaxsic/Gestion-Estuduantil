@@ -1,6 +1,6 @@
 <div class="header-bar">
   <div class="header-left">
-    <button class="btn-icon" (click)="toggleCursosPanel()">
+    <button class="btn-icon mobile-menu-btn" (click)="toggleMobileMenu()">
       <span class="material-icons">menu</span>
     </button>
     <span class="material-icons header-icon">admin_panel_settings</span>
@@ -9,7 +9,7 @@
   <div class="header-right">
     <button class="btn-primary" (click)="openRecordatorioDialog()">
       <span class="material-icons">add_alert</span>
-      Recordatorio
+      <span class="btn-text">Recordatorio</span>
     </button>
     <div class="user-info">
       <span class="user-name">{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
@@ -19,10 +19,50 @@
     </div>
     <button class="btn-logout" (click)="logout()">
       <span class="material-icons">logout</span>
-      Cerrar Sesión
+      <span class="btn-text">Cerrar Sesión</span>
     </button>
   </div>
 </div>
+
+<!-- Mobile Menu Overlay -->
+@if (showMobileMenu()) {
+  <div class="mobile-menu-overlay" (click)="closeMobileMenu()">
+    <div class="mobile-menu" (click)="$event.stopPropagation()">
+      <div class="mobile-menu-header">
+        <h3>Menú de Navegación</h3>
+        <button class="btn-icon" (click)="closeMobileMenu()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="mobile-menu-content">
+        <button class="mobile-menu-item" (click)="activeTab.set('usuarios'); closeMobileMenu()">
+          <span class="material-icons">people</span>
+          <span>Usuarios</span>
+        </button>
+        <button class="mobile-menu-item" (click)="activeTab.set('estudiantes'); closeMobileMenu()">
+          <span class="material-icons">school</span>
+          <span>Estudiantes</span>
+        </button>
+        <button class="mobile-menu-item" (click)="activeTab.set('cursos'); closeMobileMenu()">
+          <span class="material-icons">class</span>
+          <span>Cursos</span>
+        </button>
+        <button class="mobile-menu-item" (click)="activeTab.set('docentes'); closeMobileMenu()">
+          <span class="material-icons">teacher</span>
+          <span>Docentes</span>
+        </button>
+        <button class="mobile-menu-item" (click)="openRecordatorioDialog(); closeMobileMenu()">
+          <span class="material-icons">add_alert</span>
+          <span>Mis Recordatorios</span>
+        </button>
+        <button class="mobile-menu-item logout" (click)="logout()">
+          <span class="material-icons">logout</span>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
 
 <!-- Side Panel de Cursos -->
 @if (showCursosPanel()) {

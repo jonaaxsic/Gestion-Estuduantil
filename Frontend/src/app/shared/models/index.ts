@@ -123,6 +123,19 @@ export interface LoginResponse {
   error?: string;
 }
 
+export interface Nota {
+  id?: string;
+  estudiante_id: string;
+  curso_id: string;
+  asignatura: string;
+  ano_escolar: number;
+  notas?: { [key: string]: number | null };
+  nota_final?: number | null;
+  cerrado?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface DashboardDocente {
   totalEstudiantes: number;
   asistenciaHoy: number;

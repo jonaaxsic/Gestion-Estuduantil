@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Estudiante, Asistencia, Evaluacion, Anotacion, Curso, Recordatorio } from '../../shared/models';
+import { Estudiante, Asistencia, Evaluacion, Anotacion, Curso, Recordatorio, Reunione, Nota } from '../../shared/models';
 
 @Component({
   selector: 'app-dashboard-apoderado',
@@ -23,9 +23,16 @@ export class DashboardApoderadoPage implements OnInit {
   anotaciones = signal<Anotacion[]>([]);
   cursos = signal<Curso[]>([]);
   recordatorios = signal<Recordatorio[]>([]);
+  reuniones = signal<Reunione[]>([]);
+  notas = signal<Nota[]>([]);
+  
+  // Vista activa
+  activeSection = signal<'inicio' | 'notas' | 'asistencia' | 'anotaciones' | 'reuniones'>('inicio');
+  anoEscolar = new Date().getFullYear();
   
   // Modal state
   showRecordatorioModal = signal(false);
+  showMobileMenu = signal(false);
   recordatorioForm = {
     titulo: '',
     descripcion: '',
@@ -39,21 +46,17 @@ export class DashboardApoderadoPage implements OnInit {
   }
   
   loadData(): void {
-    // Get student based on logged-in user's ID (apoderado)
     const userId = this.auth.user()?.id;
     
     // Load cursos first
     this.api.getCursos().subscribe(data => this.cursos.set(data));
     
     this.api.getEstudiantes().subscribe(data => {
-      // Find student where estudiante.apoderado_id matches user.id
       const student = data.find(s => s.apoderado_id === userId);
       if (student) {
         this.estudiante.set(student);
-        // Load related data for this student
         this.loadStudentData(student.id!);
       }
-      // If no student found, estudiante stays null and shows empty state
     });
   }
   
@@ -62,11 +65,36 @@ export class DashboardApoderadoPage implements OnInit {
     this.api.getEvaluaciones().subscribe(data => this.evaluaciones.set(data));
     this.api.getAnotaciones(studentId).subscribe(data => this.anotaciones.set(data));
     
+    // Cargar notas del estudiante
+    this.api.getNotas({ estudiante_id: studentId, ano_escolar: this.anoEscolar }).subscribe(data => this.notas.set(data));
+    
+    // Cargar reuniones del curso del estudiante
+    const student = this.estudiante();
+    if (student?.curso_id) {
+      this.api.getReuniones(student.curso_id).subscribe(data => {
+        this.reuniones.set(data);
+      });
+    }
+    
     // Load recordatorios
     const userId = this.auth.user()?.id;
     if (userId) {
       this.api.getRecordatorios(userId).subscribe(data => this.recordatorios.set(data));
     }
+  }
+  
+  // Navigation
+  setSection(section: 'inicio' | 'notas' | 'asistencia' | 'anotaciones' | 'reuniones'): void {
+    this.activeSection.set(section);
+    this.closeMobileMenu();
+  }
+  
+  toggleMobileMenu(): void {
+    this.showMobileMenu.update(v => !v);
+  }
+  
+  closeMobileMenu(): void {
+    this.showMobileMenu.set(false);
   }
   
   // Recordatorio methods
@@ -135,6 +163,10 @@ export class DashboardApoderadoPage implements OnInit {
     return this.asistencia().filter(a => a.presente).length;
   }
   
+  getTotalAsistencias(): number {
+    return this.asistencia().length;
+  }
+  
   getAnotacionesPositivas(): number {
     return this.anotaciones().filter(a => a.tipo === 'positiva').length;
   }
@@ -150,6 +182,17 @@ export class DashboardApoderadoPage implements OnInit {
       return curso.nivel || curso.nombre || 'Sin curso';
     }
     return 'Sin curso';
+  }
+  
+  // Reuniones
+  getReunionesPasadas(): Reunione[] {
+    const hoy = new Date().toISOString().split('T')[0];
+    return this.reuniones().filter(r => r.fecha < hoy);
+  }
+  
+  getReunionesProximas(): Reunione[] {
+    const hoy = new Date().toISOString().split('T')[0];
+    return this.reuniones().filter(r => r.fecha >= hoy);
   }
   
   logout(): void {

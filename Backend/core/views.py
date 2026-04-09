@@ -19,6 +19,7 @@ from .models import (
     Apoderado,
     Recordatorio,
     AsignacionDocente,
+    Nota,
 )
 from .serializers import (
     UsuarioSerializer,
@@ -31,6 +32,7 @@ from .serializers import (
     ApoderadoSerializer,
     RecordatorioSerializer,
     AsignacionDocenteSerializer,
+    NotaSerializer,
 )
 
 
@@ -919,3 +921,260 @@ def estudiantes_sin_apoderado(request):
 
     serializer = EstudianteSerializer(estudiantes_sin_apoderado, many=True)
     return Response(serializer.data)
+
+
+# ============ NOTAS ============
+class NotaList(APIView, MongoObjectIdMixin):
+    """Listar notas o crear nueva"""
+
+    def get(self, request):
+        query = {}
+
+        if request.query_params.get("estudiante_id"):
+            query["estudiante_id"] = request.query_params.get("estudiante_id")
+        if request.query_params.get("curso_id"):
+            query["curso_id"] = request.query_params.get("curso_id")
+        if request.query_params.get("asignatura"):
+            query["asignatura"] = request.query_params.get("asignatura")
+        if request.query_params.get("ano_escolar"):
+            query["ano_escolar"] = request.query_params.get("ano_escolar")
+
+        notas = Nota.find(query, sort=[("created_at", -1)])
+        serializer = NotaSerializer(notas, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = NotaSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NotaDetail(APIView, MongoObjectIdMixin):
+    """Detalle de una nota"""
+
+    def get_object(self, pk):
+        return Nota.find_one({"_id": ObjectId(pk)})
+
+    def get(self, request, pk):
+        nota = self.get_object(pk)
+        if not nota:
+            return Response(
+                {"error": "Nota no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = NotaSerializer(nota)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        nota = self.get_object(pk)
+        if not nota:
+            return Response(
+                {"error": "Nota no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Si se actualizan las notas, recalcular el promedio
+        if "notas" in request.data:
+            nueva_nota = request.data.get("notas", {})
+            valores = [v for v in nueva_nota.values() if v is not None]
+            if valores:
+                request.data["nota_final"] = round(sum(valores) / len(valores), 1)
+
+        serializer = NotaSerializer(nota, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        nota = self.get_object(pk)
+        if not nota:
+            return Response(
+                {"error": "Nota no encontrada"}, status=status.HTTP_404_NOT_FOUND
+            )
+        nota.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+def cerrar_ramo(request):
+    """Cerrar un ramo (después del 25 de diciembre)"""
+    nota_id = request.data.get("nota_id")
+
+    if not nota_id:
+        return Response(
+            {"error": "nota_id requerido"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    nota = Nota.find_one({"_id": ObjectId(nota_id)})
+    if not nota:
+        return Response(
+            {"error": "Nota no encontrada"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    nota.cerrado = True
+    nota.save()
+
+    serializer = NotaSerializer(nota)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+def actualizar_nota_simple(request):
+    """Actualizar una nota específica de un estudiante en una asignatura"""
+    estudiante_id = request.data.get("estudiante_id")
+    curso_id = request.data.get("curso_id")
+    asignatura = request.data.get("asignatura")
+    ano_escolar = request.data.get("ano_escolar")
+    numero_nota = request.data.get("numero_nota")  # "nota1", "nota2", etc.
+    valor = request.data.get("valor")  # valor numérico de la nota
+
+    if not all([estudiante_id, curso_id, asignatura, numero_nota, valor]):
+        return Response(
+            {
+                "error": "estudiante_id, curso_id, asignatura, numero_nota y valor requeridos"
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Buscar o crear la nota del estudiante
+    nota = Nota.find_one(
+        {
+            "estudiante_id": estudiante_id,
+            "curso_id": curso_id,
+            "asignatura": asignatura,
+            "ano_escolar": ano_escolar,
+        }
+    )
+
+    if not nota:
+        # Crear nueva entrada de notas
+        notas_dict = {
+            "nota1": None,
+            "nota2": None,
+            "nota3": None,
+            "nota4": None,
+            "nota5": None,
+            "nota6": None,
+        }
+        notas_dict[numero_nota] = valor
+
+        nuevo = Nota(
+            {
+                "estudiante_id": estudiante_id,
+                "curso_id": curso_id,
+                "asignatura": asignatura,
+                "ano_escolar": ano_escolar,
+                "notas": notas_dict,
+                "nota_final": valor,
+                "cerrado": False,
+            }
+        )
+        nuevo.save()
+        serializer = NotaSerializer(nuevo)
+        return Response(serializer.data)
+    else:
+        # Actualizar nota específica
+        if nota.cerrado:
+            return Response(
+                {"error": "El ramo está cerrado y no puede ser modificado"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        notas = nota.notas or {}
+        notas[numero_nota] = valor
+        nota.notas = notas
+
+        # Recalcular promedio
+        valores = [v for v in notas.values() if v is not None]
+        if valores:
+            nota.nota_final = round(sum(valores) / len(valores), 1)
+
+        nota.save()
+        serializer = NotaSerializer(nota)
+        return Response(serializer.data)
+
+
+# ============ REGISTRO PÚBLICO DE APODERADOS ============
+@api_view(["POST"])
+def registro_apoderado(request):
+    """Registro público de nuevos apoderados"""
+    email = request.data.get("email")
+    password = request.data.get("password")
+    rut = request.data.get("rut")
+    nombre = request.data.get("nombre")
+    apellido = request.data.get("apellido")
+    telefono = request.data.get("telefono")
+    direccion = request.data.get("direccion")
+    estudiante_id = request.data.get("estudiante_id")  # ID del pupilo
+
+    # Validaciones básicas
+    if not all([email, password, rut, nombre, apellido]):
+        return Response(
+            {"error": "Todos los campos obligatorios deben ser completados"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Verificar si el email ya existe
+    if Usuario.find_one({"email": email}):
+        return Response(
+            {"error": "El correo electrónico ya está registrado"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    # Verificar si el RUT ya existe
+    if Usuario.find_one({"rut": rut}):
+        return Response(
+            {"error": "El RUT ya está registrado"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Verificar que el estudiante_id corresponda a un estudiante válido
+    if estudiante_id:
+        estudiante = Estudiante.find_one({"_id": ObjectId(estudiante_id)})
+        if not estudiante:
+            return Response(
+                {"error": "Estudiante no encontrado"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    # Crear el usuario con rol de apoderado
+    nuevo_apoderado = Usuario(
+        {
+            "email": email,
+            "password": password,
+            "rut": rut,
+            "nombre": nombre,
+            "apellido": apellido,
+            "telefono": telefono,
+            "direccion": direccion,
+            "rol": "apoderado",
+            "activo": True,
+        }
+    )
+    nuevo_apoderado.save()
+
+    # Si se proporcionó estudiante_id, vincular al estudiante
+    if estudiante_id:
+        estudiante = Estudiante.find_one({"_id": ObjectId(estudiante_id)})
+        if estudiante:
+            estudiante.apoderado_id = str(nuevo_apoderado._id)
+            estudiante.save()
+
+    # También crear entrada en colección de apoderados (para compatibilidad)
+    nuevo_apoderado_data = Apoderado(
+        {
+            "rut": rut,
+            "nombre": nombre,
+            "apellido": apellido,
+            "telefono": telefono,
+            "email": email,
+            "direccion": direccion,
+            "estudiante_id": estudiante_id,
+        }
+    )
+    nuevo_apoderado_data.save()
+
+    serializer = UsuarioSerializer(nuevo_apoderado)
+    return Response(
+        {"success": True, "user": serializer.data}, status=status.HTTP_201_CREATED
+    )

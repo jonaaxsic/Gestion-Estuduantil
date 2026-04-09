@@ -266,3 +266,29 @@ class AsignacionDocenteSerializer(serializers.Serializer):
             setattr(instance, key, value)
         instance.save()
         return instance
+
+
+class NotaSerializer(serializers.Serializer):
+    """Serializer para Notas"""
+
+    id = serializers.CharField(source="_id", read_only=True)
+    estudiante_id = serializers.CharField(required=True)
+    curso_id = serializers.CharField(required=True)
+    asignatura = serializers.CharField(required=True)
+    ano_escolar = serializers.IntegerField(required=True)
+    notas = serializers.DictField(required=False, allow_null=True)
+    nota_final = serializers.FloatField(required=False, allow_null=True)
+    cerrado = serializers.BooleanField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    def create(self, validated_data):
+        nota = Nota(validated_data)
+        nota.save()
+        return nota
+
+    def update(self, instance, validated_data):
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+        return instance

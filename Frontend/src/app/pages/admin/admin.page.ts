@@ -29,6 +29,9 @@ export class AdminPage implements OnInit {
   // Tab state
   activeTab = signal<'usuarios' | 'estudiantes' | 'cursos' | 'docentes'>('usuarios');
   
+  // Mobile menu state
+  showMobileMenu = signal(false);
+  
   // Dialog states
   showUserDialog = signal(false);
   showStudentDialog = signal(false);
@@ -487,5 +490,13 @@ export class AdminPage implements OnInit {
 
   logout(): void {
     this.auth.logout();
+  }
+
+  toggleMobileMenu(): void {
+    this.showMobileMenu.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.showMobileMenu.set(false);
   }
 }

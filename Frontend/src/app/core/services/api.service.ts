@@ -16,6 +16,17 @@ import {
 } from '../../shared/models';
 import { environment } from '../../../environments/environment';
 
+interface Nota {
+  id?: string;
+  estudiante_id: string;
+  curso_id: string;
+  asignatura: string;
+  ano_escolar: number;
+  notas?: { [key: string]: number | null };
+  nota_final?: number | null;
+  cerrado?: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -271,5 +282,67 @@ export class ApiService {
 
   deleteAsignacionDocente(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/asignaciones-docente/${id}`, { headers: this.jsonHeaders });
+  }
+
+  // ============ REGISTRO PÚBLICO ============
+  registroApoderado(data: {
+    email: string;
+    password: string;
+    rut: string;
+    nombre: string;
+    apellido: string;
+    telefono?: string;
+    direccion?: string;
+    estudiante_id?: string;
+  }): Observable<{ success: boolean; user: Usuario }> {
+    return this.http.post<{ success: boolean; user: Usuario }>(`${this.baseUrl}/auth/registro`, data, { headers: this.jsonHeaders });
+  }
+
+  getEstudiantesSinApoderado(): Observable<Estudiante[]> {
+    return this.http.get<Estudiante[]>(`${this.baseUrl}/estudiantes/sin-apoderado`, { headers: this.jsonHeaders });
+  }
+
+  // ============ NOTAS ============
+  getNotas(filters?: {
+    estudiante_id?: string;
+    curso_id?: string;
+    asignatura?: string;
+    ano_escolar?: number;
+  }): Observable<Nota[]> {
+    let url = `${this.baseUrl}/notas`;
+    const params = new URLSearchParams();
+    if (filters?.estudiante_id) params.set('estudiante_id', filters.estudiante_id);
+    if (filters?.curso_id) params.set('curso_id', filters.curso_id);
+    if (filters?.asignatura) params.set('asignatura', filters.asignatura);
+    if (filters?.ano_escolar) params.set('ano_escolar', String(filters.ano_escolar));
+    if (params.toString()) url += '?' + params.toString();
+    return this.http.get<Nota[]>(url, { headers: this.jsonHeaders });
+  }
+
+  createNota(data: Partial<Nota>): Observable<Nota> {
+    return this.http.post<Nota>(`${this.baseUrl}/notas`, data, { headers: this.jsonHeaders });
+  }
+
+  updateNota(id: string, data: Partial<Nota>): Observable<Nota> {
+    return this.http.put<Nota>(`${this.baseUrl}/notas/${id}`, data, { headers: this.jsonHeaders });
+  }
+
+  deleteNota(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/notas/${id}`, { headers: this.jsonHeaders });
+  }
+
+  cerrarRamo(notaId: string): Observable<Nota> {
+    return this.http.post<Nota>(`${this.baseUrl}/notas/cerrar`, { nota_id: notaId }, { headers: this.jsonHeaders });
+  }
+
+  actualizarNotaSimple(data: {
+    estudiante_id: string;
+    curso_id: string;
+    asignatura: string;
+    ano_escolar: number;
+    numero_nota: string;
+    valor: number;
+  }): Observable<Nota> {
+    return this.http.post<Nota>(`${this.baseUrl}/notas/actualizar`, data, { headers: this.jsonHeaders });
   }
 }

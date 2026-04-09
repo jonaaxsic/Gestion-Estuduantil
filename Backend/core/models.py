@@ -445,6 +445,8 @@ class Recordatorio(BaseModel):
         self.fecha = None  # Fecha del recordatorio
         self.hora = None  # Hora del recordatorio (opcional)
         self.privado = True  # Solo visible por el usuario que lo creó
+        self.completada = False  # Estado de completado
+        self.fecha_limite = None  # Fecha límite (alias de fecha para compatibilidad)
         super().__init__(data)
 
     def _load_from_dict(self, data):
@@ -453,8 +455,10 @@ class Recordatorio(BaseModel):
         self.titulo = data.get("titulo")
         self.descripcion = data.get("descripcion")
         self.fecha = data.get("fecha")
+        self.fecha_limite = data.get("fecha_limite") or data.get("fecha")
         self.hora = data.get("hora")
         self.privado = data.get("privado", True)
+        self.completada = data.get("completada", False)
 
     def to_dict(self):
         data = super().to_dict()
@@ -463,9 +467,11 @@ class Recordatorio(BaseModel):
                 "usuario_id": self.usuario_id,
                 "titulo": self.titulo,
                 "descripcion": self.descripcion,
-                "fecha": self.fecha,
+                "fecha": self.fecha_limite or self.fecha,
+                "fecha_limite": self.fecha_limite,
                 "hora": self.hora,
                 "privado": self.privado,
+                "completada": self.completada,
             }
         )
         return data
@@ -501,3 +507,54 @@ class AsignacionDocente(BaseModel):
             }
         )
         return data
+
+
+class Nota(BaseModel):
+    """Modelo para gestionar notas de estudiantes por asignatura y año escolar"""
+
+    collection_name = "notas"
+
+    def __init__(self, data=None):
+        self.estudiante_id = None  # ID del estudiante
+        self.curso_id = None  # ID del curso
+        self.asignatura = None  # Nombre de la asignatura (ej: Matemática, Historia)
+        self.ano_escolar = None  # Año escolar (ej: 2026)
+        self.notas = None  # Lista de notas (6 notas anuales)
+        # Formato notas: {"nota1": 6.5, "nota2": 7.0, "nota3": None, ...}
+        self.nota_final = None  # Promedio final de las notas ingresadas
+        self.cerrado = None  # Si el ramo está cerrado (después del 25 diciembre)
+        super().__init__(data)
+
+    def _load_from_dict(self, data):
+        super()._load_from_dict(data)
+        self.estudiante_id = data.get("estudiante_id")
+        self.curso_id = data.get("curso_id")
+        self.asignatura = data.get("asignatura")
+        self.ano_escolar = data.get("ano_escolar")
+        self.notas = data.get("notas")
+        self.nota_final = data.get("nota_final")
+        self.cerrado = data.get("cerrado", False)
+
+    def to_dict(self):
+        data = super().to_dict()
+        data.update(
+            {
+                "estudiante_id": self.estudiante_id,
+                "curso_id": self.curso_id,
+                "asignatura": self.asignatura,
+                "ano_escolar": self.ano_escolar,
+                "notas": self.notas,
+                "nota_final": self.nota_final,
+                "cerrado": self.cerrado,
+            }
+        )
+        return data
+
+    def calcular_promedio(self):
+        """Calcula el promedio de las notas ingresadas"""
+        if not self.notas:
+            return None
+        valores = [v for v in self.notas.values() if v is not None]
+        if not valores:
+            return None
+        return round(sum(valores) / len(valores), 1)

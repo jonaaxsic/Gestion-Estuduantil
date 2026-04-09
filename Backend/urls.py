@@ -67,4 +67,17 @@ urlpatterns = [
     # Dashboards
     path("dashboard/docente", views.dashboard_docente, name="dashboard-docente"),
     path("dashboard/apoderado", views.dashboard_apoderado, name="dashboard-apoderado"),
+    # Registro público de apoderados
+    path("auth/registro", views.registro_apoderado, name="registro-apoderado"),
+    path(
+        "estudiantes/sin-apoderado",
+        views.estudiantes_sin_apoderado,
+        name="estudiantes-sin-apoderado",
+    ),
+    # Notas
+    path("notas", views.NotaList.as_view(), name="nota-list"),
+    path("notas/", views.NotaList.as_view(), name="nota-list-slash"),
+    path("notas/<str:pk>", views.NotaDetail.as_view(), name="nota-detail"),
+    path("notas/cerrar", views.cerrar_ramo, name="cerrar-ramo"),
+    path("notas/actualizar", views.actualizar_nota_simple, name="actualizar-nota"),
 ]

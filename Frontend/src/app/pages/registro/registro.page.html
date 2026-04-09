@@ -1,0 +1,154 @@
+<div class="registro-container">
+  <div class="registro-card">
+    <div class="registro-header">
+      <div class="registro-icon">
+        <span class="material-icons">person_add</span>
+      </div>
+      <h1 class="registro-title">Registro de Apoderado</h1>
+      <p class="registro-subtitle">Completa tus datos para registrarte en el sistema</p>
+    </div>
+
+    @if (success()) {
+      <div class="success-message">
+        <span class="material-icons">check_circle</span>
+        {{ success() }}
+      </div>
+    }
+
+    <form (ngSubmit)="onSubmit()" class="registro-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">RUT <span class="required">*</span></label>
+          <input 
+            type="text" 
+            class="form-input" 
+            [(ngModel)]="rut" 
+            name="rut" 
+            placeholder="12345678-9"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Nombre <span class="required">*</span></label>
+          <input 
+            type="text" 
+            class="form-input" 
+            [(ngModel)]="nombre" 
+            name="nombre" 
+            placeholder="Juan"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Apellido <span class="required">*</span></label>
+          <input 
+            type="text" 
+            class="form-input" 
+            [(ngModel)]="apellido" 
+            name="apellido" 
+            placeholder="Pérez"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input 
+            type="tel" 
+            class="form-input" 
+            [(ngModel)]="telefono" 
+            name="telefono" 
+            placeholder="+56 9 1234 5678"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Correo electrónico <span class="required">*</span></label>
+        <input 
+          type="email" 
+          class="form-input" 
+          [(ngModel)]="email" 
+          name="email" 
+          placeholder="correo@colegio.cl"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Dirección</label>
+        <input 
+          type="text" 
+          class="form-input" 
+          [(ngModel)]="direccion" 
+          name="direccion" 
+          placeholder="Av. Siempre Viva 123"
+        >
+      </div>
+
+      @if (estudiantes().length > 0) {
+        <div class="form-group">
+          <label class="form-label">Seleccionar pupilo (opcional)</label>
+          <select class="form-input form-select" [(ngModel)]="estudiante_id" name="estudiante_id">
+            <option value="">Selecciona un estudiante...</option>
+            @for (est of estudiantes(); track est.id) {
+              <option [value]="est.id">
+                {{ est.apellido }} {{ est.nombre }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Contraseña <span class="required">*</span></label>
+          <input 
+            type="password" 
+            class="form-input" 
+            [(ngModel)]="password" 
+            name="password" 
+            placeholder="Mínimo 6 caracteres"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña <span class="required">*</span></label>
+          <input 
+            type="password" 
+            class="form-input" 
+            [(ngModel)]="confirmPassword" 
+            name="confirmPassword" 
+            placeholder="Repite tu contraseña"
+            required
+          >
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="error-message">
+          <span class="material-icons">error</span>
+          {{ error() }}
+        </div>
+      }
+
+      <button type="submit" class="btn btn-primary registro-btn" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          <span>Registrarse</span>
+          <span class="material-icons">arrow_forward</span>
+        }
+      </button>
+    </form>
+
+    <div class="registro-footer">
+      <p>¿Ya tienes una cuenta? <a routerLink="/login">Iniciar Sesión</a></p>
+    </div>
+  </div>
+</div>

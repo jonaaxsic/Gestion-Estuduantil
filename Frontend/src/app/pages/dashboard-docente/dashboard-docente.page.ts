@@ -11,7 +11,12 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Curso, Evaluacion, Anotacion, Estudiante, Asistencia, Reunione, Recordatorio, AsignacionDocente } from '../../shared/models';
+import { Curso, Evaluacion, Anotacion, Estudiante, Asistencia, Reunione, Recordatorio, AsignacionDocente, Nota } from '../../shared/models';
+
+interface CursoAsignado extends Curso {
+  asignatura?: string;
+  asignacion_id?: string;
+}
 
 @Component({
   selector: 'app-dashboard-docente',
@@ -35,23 +40,38 @@ export class DashboardDocentePage implements OnInit {
   private readonly api = inject(ApiService);
   readonly auth = inject(AuthService);
   
+  // Cursos asignados al docente
+  cursosAsignados = signal<CursoAsignado[]>([]);
+  
+  // Todos los datos
   cursos = signal<Curso[]>([]);
   estudiantes = signal<Estudiante[]>([]);
   evaluaciones = signal<Evaluacion[]>([]);
   anotaciones = signal<Anotacion[]>([]);
   recordatorios = signal<Recordatorio[]>([]);
   asignacionesDocente = signal<AsignacionDocente[]>([]);
-
+  
+  // Notas de estudiantes
+  notasEstudiantes = signal<Nota[]>([]);
+  
+  // Vista actual
+  activeView = signal<'dashboard' | 'cursos' | 'asistencia' | 'evaluaciones' | 'anotaciones' | 'reuniones' | 'notas'>('dashboard');
+  
   // Modal states
   showAsistenciaModal = signal(false);
   showEvaluacionModal = signal(false);
   showAnotacionModal = signal(false);
   showReunionModal = signal(false);
   showRecordatorioModal = signal(false);
+  showNotasModal = signal(false);
   showCursosPanel = signal(false);
+  showMobileMenu = signal(false);
+  
   selectedCurso = signal<Curso | null>(null);
+  selectedAsignatura = signal<string>('');
   saving = signal(false);
   successMessage = signal('');
+  anoEscolar = new Date().getFullYear();
   
   // Form data
   asistenciaForm = {
@@ -107,7 +127,31 @@ export class DashboardDocentePage implements OnInit {
     }
     
     // Cargar asignaciones del docente
-    this.api.getAsignacionesDocente().subscribe(data => this.asignacionesDocente.set(data));
+    this.api.getAsignacionesDocente().subscribe(data => {
+      this.asignacionesDocente.set(data);
+      this.cargarCursosAsignados();
+    });
+  }
+
+  cargarCursosAsignados(): void {
+    const docenteId = this.auth.user()?.id;
+    if (!docenteId) return;
+
+    const misAsignaciones = this.asignacionesDocente().filter(a => a.docente_id === docenteId);
+    const cursos: CursoAsignado[] = [];
+
+    for (const asig of misAsignaciones) {
+      const curso = this.cursos().find(c => c.id === asig.curso_id);
+      if (curso) {
+        cursos.push({
+          ...curso,
+          asignatura: asig.asignatura,
+          asignacion_id: asig.id
+        });
+      }
+    }
+
+    this.cursosAsignados.set(cursos);
   }
   
   loadEstudiantesPorCurso(): void {
@@ -374,6 +418,77 @@ export class DashboardDocentePage implements OnInit {
   getCursoNombre(cursoId: string): string {
     const curso = this.cursos().find(c => c.id === cursoId);
     return curso ? `${curso.nivel} ${curso.nombre}` : 'Curso';
+  }
+
+  // Cambiar vista
+  setView(view: 'dashboard' | 'cursos' | 'asistencia' | 'evaluaciones' | 'anotaciones' | 'reuniones' | 'notas'): void {
+    this.activeView.set(view);
+    this.closeMobileMenu();
+  }
+
+  // Seleccionar curso para ver detalle
+  seleccionarCurso(curso: CursoAsignado): void {
+    this.selectedCurso.set(curso);
+    this.selectedAsignatura.set(curso.asignatura || '');
+    
+    // Cargar estudiantes del curso
+    if (curso.id) {
+      this.api.getEstudiantes(curso.id).subscribe(data => {
+        this.estudiantes.set(data);
+        this.loadNotasEstudiantes(curso.id!, curso.asignatura || '');
+      });
+    }
+  }
+
+  loadNotasEstudiantes(cursoId: string, asignatura: string): void {
+    this.api.getNotas({ curso_id: cursoId, ano_escolar: this.anoEscolar }).subscribe(data => {
+      // Filtrar por asignatura
+      this.notasEstudiantes.set(data.filter(n => n.asignatura === asignatura));
+    });
+  }
+
+  // Guardar nota de un estudiante
+  guardarNota(estudianteId: string, numeroNota: string, valor: number): void {
+    const curso = this.selectedCurso();
+    if (!curso?.id || !this.selectedAsignatura()) return;
+
+    this.api.actualizarNotaSimple({
+      estudiante_id: estudianteId,
+      curso_id: curso.id,
+      asignatura: this.selectedAsignatura(),
+      ano_escolar: this.anoEscolar,
+      numero_nota: numeroNota,
+      valor: valor
+    }).subscribe({
+      next: () => {
+        this.showSuccess('Nota guardada correctamente');
+        this.loadNotasEstudiantes(curso.id!, this.selectedAsignatura());
+      },
+      error: () => alert('Error al guardar nota')
+    });
+  }
+
+  getNotaEstudiante(estudianteId: string): Nota | undefined {
+    return this.notasEstudiantes().find(n => n.estudiante_id === estudianteId);
+  }
+
+  // Estudiantes ordenados alfabéticamente
+  get estudiantesOrdenados(): Estudiante[] {
+    return [...this.estudiantes()].sort((a, b) => {
+      const cmp = a.apellido.localeCompare(b.apellido);
+      if (cmp !== 0) return cmp;
+      const cmp2 = a.nombre.localeCompare(b.nombre);
+      return cmp2;
+    });
+  }
+
+  // Menú móvil
+  toggleMobileMenu(): void {
+    this.showMobileMenu.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.showMobileMenu.set(false);
   }
 
   logout(): void {

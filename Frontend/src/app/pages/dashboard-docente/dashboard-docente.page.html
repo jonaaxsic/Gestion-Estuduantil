@@ -1,15 +1,15 @@
 <div class="header-bar">
   <div class="header-left">
-    <button class="btn btn-icon" (click)="toggleCursosPanel()">
+    <button class="btn-icon mobile-menu-btn" (click)="toggleMobileMenu()">
       <span class="material-icons">menu</span>
     </button>
     <span class="material-icons header-icon">school</span>
     <h1 class="header-title">Panel del Docente</h1>
   </div>
   <div class="header-right">
-    <button class="btn btn-primary" (click)="openRecordatorioDialog()">
+    <button class="btn-primary" (click)="openRecordatorioDialog()">
       <span class="material-icons">add_alert</span>
-      Nuevo Recordatorio
+      <span class="btn-text">Recordatorio</span>
     </button>
     <div class="user-info">
       <span class="user-name">{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
@@ -17,208 +17,299 @@
         <span class="user-rut">RUT: {{ auth.user()?.rut }}</span>
       }
     </div>
-    <button class="btn btn-secondary" (click)="logout()">
+    <button class="btn-logout" (click)="logout()">
       <span class="material-icons">logout</span>
-      Cerrar Sesión
+      <span class="btn-text">Cerrar</span>
     </button>
   </div>
 </div>
 
-<!-- Panel Lateral de Cursos -->
-@if (showCursosPanel()) {
-  <div class="side-panel">
-    <div class="side-panel-header">
-      <h3><span class="material-icons">class</span> Mis Cursos</h3>
-      <button class="close-btn" (click)="toggleCursosPanel()">
-        <span class="material-icons">close</span>
-      </button>
-    </div>
-    <div class="side-panel-body">
-      @if (asignacionesDocente().length === 0) {
-        <div class="empty-state">
-          <span class="material-icons">info</span>
-          <p>No hay cursos asignados</p>
-        </div>
-      } @else {
-        @for (asignacion of asignacionesDocente(); track asignacion.id) {
-          @if (asignacion.curso_id) {
-            <div class="course-item" 
-                 [class.active]="selectedCurso()?.id === asignacion.curso_id"
-                 (click)="selectCurso(cursos().find(c => c.id === asignacion.curso_id)!)">
-              <div class="course-icon">
-                <span class="material-icons">school</span>
-              </div>
-              <div class="course-info">
-                <span class="course-name">{{ getCursoNombre(asignacion.curso_id) }}</span>
-                <span class="course-asignatura">{{ asignacion.asignatura }}</span>
-              </div>
-            </div>
-          }
-        }
-      }
+<!-- Mobile Menu Overlay -->
+@if (showMobileMenu()) {
+  <div class="mobile-menu-overlay" (click)="closeMobileMenu()">
+    <div class="mobile-menu" (click)="$event.stopPropagation()">
+      <div class="mobile-menu-header">
+        <h3>Menú</h3>
+        <button class="btn-icon" (click)="closeMobileMenu()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="mobile-menu-content">
+        <button class="mobile-menu-item" (click)="setView('dashboard')">
+          <span class="material-icons">dashboard</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setView('cursos')">
+          <span class="material-icons">class</span>
+          <span>Mis Cursos</span>
+        </button>
+        <button class="mobile-menu-item" (click)="openAsistenciaDialog(); closeMobileMenu()">
+          <span class="material-icons">how_to_reg</span>
+          <span>Registrar Asistencia</span>
+        </button>
+        <button class="mobile-menu-item" (click)="openEvaluacionDialog(); closeMobileMenu()">
+          <span class="material-icons">add_circle</span>
+          <span>Crear Evaluación</span>
+        </button>
+        <button class="mobile-menu-item" (click)="openAnotacionDialog(); closeMobileMenu()">
+          <span class="material-icons">edit_note</span>
+          <span>Nueva Anotación</span>
+        </button>
+        <button class="mobile-menu-item" (click)="openReunionDialog(); closeMobileMenu()">
+          <span class="material-icons">event_available</span>
+          <span>Programar Reunión</span>
+        </button>
+        <button class="mobile-menu-item logout" (click)="logout()">
+          <span class="material-icons">logout</span>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
     </div>
   </div>
 }
 
-<div class="page-container" [class.with-panel]="showCursosPanel()">
-  <!-- Stats -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon cursos">
-        <span class="material-icons">class</span>
+<div class="page-container">
+  <!-- Dashboard View -->
+  @if (activeView() === 'dashboard') {
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card" (click)="setView('cursos')">
+        <div class="stat-icon cursos">
+          <span class="material-icons">class</span>
+        </div>
+        <div class="stat-value">{{ cursosAsignados().length }}</div>
+        <div class="stat-label">Cursos Asignados</div>
       </div>
-      <div class="stat-value">{{ cursos().length }}</div>
-      <div class="stat-label">Cursos</div>
-    </div>
-    
-    <div class="stat-card">
-      <div class="stat-icon estudiantes">
-        <span class="material-icons">groups</span>
+      
+      <div class="stat-card">
+        <div class="stat-icon estudiantes">
+          <span class="material-icons">groups</span>
+        </div>
+        <div class="stat-value">{{ estudiantes().length }}</div>
+        <div class="stat-label">Estudiantes</div>
       </div>
-      <div class="stat-value">{{ estudiantes().length }}</div>
-      <div class="stat-label">Estudiantes</div>
-    </div>
-    
-    <div class="stat-card">
-      <div class="stat-icon evaluaciones">
-        <span class="material-icons">assignment</span>
-      </div>
-      <div class="stat-value">{{ evaluaciones().length }}</div>
-      <div class="stat-label">Evaluaciones</div>
-    </div>
-    
-    <div class="stat-card">
-      <div class="stat-icon recordatorios">
-        <span class="material-icons">notifications</span>
-      </div>
-      <div class="stat-value">{{ recordatorios().length }}</div>
-      <div class="stat-label">Recordatorios</div>
-    </div>
-  </div>
-  
-  <!-- Quick Actions -->
-  <h2 class="section-title">
-    <span class="material-icons">flash_on</span>
-    Acciones Rápidas
-  </h2>
-  
-  <div class="quick-actions-grid">
-    <button class="quick-action-btn" (click)="openAsistenciaDialog()">
-      <span class="material-icons">how_to_reg</span>
-      <span>Registrar Asistencia</span>
-    </button>
-    <button class="quick-action-btn" (click)="openEvaluacionDialog()">
-      <span class="material-icons">add_circle</span>
-      <span>Crear Evaluación</span>
-    </button>
-    <button class="quick-action-btn" (click)="openAnotacionDialog()">
-      <span class="material-icons">edit_note</span>
-      <span>Nueva Anotación</span>
-    </button>
-    <button class="quick-action-btn" (click)="openReunionDialog()">
-      <span class="material-icons">event_available</span>
-      <span>Programar Reunión</span>
-    </button>
-  </div>
-  
-  <!-- Content Grid -->
-  <div class="card-grid">
-    <!-- Recordatorios -->
-    <div class="content-card">
-      <div class="card-header">
-        <h3 class="card-title">
-          <span class="material-icons">notifications</span>
-          Mis Recordatorios
-        </h3>
-      </div>
-      <div class="card-body">
-        @if (recordatorios().length === 0) {
-          <div class="empty-state">
-            <span class="material-icons">info</span>
-            <p>No hay recordatorios</p>
-          </div>
-        } @else {
-          @for (rec of recordatorios(); track rec.id) {
-            <div class="list-item">
-              <div class="list-icon" [class.completed]="rec.completada" [class.pending]="!rec.completada">
-                <span class="material-icons">{{ rec.completada ? 'check_circle' : 'schedule' }}</span>
-              </div>
-              <div class="list-content">
-                <span class="title" [style.text-decoration]="rec.completada ? 'line-through' : 'none'">{{ rec.titulo }}</span>
-                <span class="subtitle">{{ rec.fecha_limite ? 'Para: ' + rec.fecha_limite : 'Sin fecha límite' }}</span>
-              </div>
-              <button class="btn-icon-small" (click)="toggleRecordatorioCompleted(rec)" title="Marcar como completada">
-                <span class="material-icons">{{ rec.completada ? 'undo' : 'check' }}</span>
-              </button>
-              <button class="btn-icon-small delete" (click)="deleteRecordatorio(rec)" title="Eliminar">
-                <span class="material-icons">delete</span>
-              </button>
-            </div>
-          }
-        }
-      </div>
-    </div>
-    
-    <!-- Evaluaciones -->
-    <div class="content-card">
-      <div class="card-header">
-        <h3 class="card-title">
+      
+      <div class="stat-card">
+        <div class="stat-icon evaluaciones">
           <span class="material-icons">assignment</span>
-          Evaluaciones Próximas
-        </h3>
+        </div>
+        <div class="stat-value">{{ evaluaciones().length }}</div>
+        <div class="stat-label">Evaluaciones</div>
       </div>
-      <div class="card-body">
-        @if (evaluaciones().length === 0) {
-          <div class="empty-state">
-            <span class="material-icons">info</span>
-            <p>No hay evaluaciones registradas</p>
-          </div>
-        } @else {
-          @for (eval of evaluaciones(); track eval.id) {
-            <div class="list-item">
-              <div class="list-icon eval">
-                <span class="material-icons">description</span>
-              </div>
-              <div class="list-content">
-                <span class="title">{{ eval.titulo }}</span>
-                <span class="subtitle">{{ eval.materia }} • {{ eval.fecha }}</span>
-              </div>
-            </div>
-          }
-        }
+      
+      <div class="stat-card">
+        <div class="stat-icon recordatorios">
+          <span class="material-icons">notifications</span>
+        </div>
+        <div class="stat-value">{{ recordatorios().length }}</div>
+        <div class="stat-label">Recordatorios</div>
       </div>
     </div>
     
-    <!-- Anotaciones -->
+    <!-- Quick Actions -->
+    <h2 class="section-title">
+      <span class="material-icons">flash_on</span>
+      Acciones Rápidas
+    </h2>
+    
+    <div class="quick-actions-grid">
+      <button class="quick-action-btn" (click)="openAsistenciaDialog()">
+        <span class="material-icons">how_to_reg</span>
+        <span>Registrar Asistencia</span>
+      </button>
+      <button class="quick-action-btn" (click)="openEvaluacionDialog()">
+        <span class="material-icons">add_circle</span>
+        <span>Crear Evaluación</span>
+      </button>
+      <button class="quick-action-btn" (click)="openAnotacionDialog()">
+        <span class="material-icons">edit_note</span>
+        <span>Nueva Anotación</span>
+      </button>
+      <button class="quick-action-btn" (click)="openReunionDialog()">
+        <span class="material-icons">event_available</span>
+        <span>Programar Reunión</span>
+      </button>
+    </div>
+    
+    <!-- Content Grid -->
+    <div class="card-grid">
+      <!-- Recordatorios -->
+      <div class="content-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">notifications</span>
+            Mis Recordatorios
+          </h3>
+        </div>
+        <div class="card-body">
+          @if (recordatorios().length === 0) {
+            <div class="empty-state">
+              <span class="material-icons">info</span>
+              <p>No hay recordatorios</p>
+            </div>
+          } @else {
+            @for (rec of recordatorios(); track rec.id) {
+              <div class="list-item">
+                <div class="list-icon" [class.completed]="rec.completada" [class.pending]="!rec.completada">
+                  <span class="material-icons">{{ rec.completada ? 'check_circle' : 'schedule' }}</span>
+                </div>
+                <div class="list-content">
+                  <span class="title" [style.text-decoration]="rec.completada ? 'line-through' : 'none'">{{ rec.titulo }}</span>
+                  <span class="subtitle">{{ rec.fecha_limite ? 'Para: ' + rec.fecha_limite : 'Sin fecha límite' }}</span>
+                </div>
+                <button class="btn-icon-small" (click)="toggleRecordatorioCompleted(rec)" title="Marcar como completada">
+                  <span class="material-icons">{{ rec.completada ? 'undo' : 'check' }}</span>
+                </button>
+                <button class="btn-icon-small delete" (click)="deleteRecordatorio(rec)" title="Eliminar">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </div>
+      
+      <!-- Evaluaciones -->
+      <div class="content-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">assignment</span>
+            Evaluaciones Próximas
+          </h3>
+        </div>
+        <div class="card-body">
+          @if (evaluaciones().length === 0) {
+            <div class="empty-state">
+              <span class="material-icons">info</span>
+              <p>No hay evaluaciones registradas</p>
+            </div>
+          } @else {
+            @for (eval of evaluaciones(); track eval.id) {
+              <div class="list-item">
+                <div class="list-icon eval">
+                  <span class="material-icons">description</span>
+                </div>
+                <div class="list-content">
+                  <span class="title">{{ eval.titulo }}</span>
+                  <span class="subtitle">{{ eval.materia }} - {{ eval.fecha }}</span>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Cursos View -->
+  @if (activeView() === 'cursos') {
     <div class="content-card">
       <div class="card-header">
         <h3 class="card-title">
-          <span class="material-icons">note</span>
-          Anotaciones Recientes
+          <span class="material-icons">class</span>
+          Mis Cursos Asignados
         </h3>
       </div>
       <div class="card-body">
-        @if (anotaciones().length === 0) {
+        @if (cursosAsignados().length === 0) {
           <div class="empty-state">
-            <span class="material-icons">info</span>
-            <p>No hay anotaciones</p>
+            <span class="material-icons">school</span>
+            <p>No tienes cursos asignados</p>
+            <p class="hint">Contacta al administrador para que te asigne cursos</p>
           </div>
         } @else {
-          @for (anot of anotaciones(); track anot.id) {
-            <div class="list-item">
-              <div class="list-icon" [class.positiva]="anot.tipo === 'positiva'" [class.negativa]="anot.tipo === 'negativa'">
-                <span class="material-icons">{{ anot.tipo === 'positiva' ? 'thumb_up' : 'thumb_down' }}</span>
+          <div class="cursos-grid">
+            @for (curso of cursosAsignados(); track curso.id) {
+              <div class="curso-card" (click)="seleccionarCurso(curso)">
+                <div class="curso-icon">
+                  <span class="material-icons">school</span>
+                </div>
+                <div class="curso-info">
+                  <span class="curso-nivel">{{ curso.nivel }}</span>
+                  <span class="curso-nombre">{{ curso.nombre }}</span>
+                  <span class="curso-asignatura">{{ curso.asignatura }}</span>
+                </div>
+                <div class="curso-arrow">
+                  <span class="material-icons">chevron_right</span>
+                </div>
               </div>
-              <div class="list-content">
-                <span class="title">{{ anot.descripcion }}</span>
-                <span class="subtitle">{{ anot.fecha }}</span>
-              </div>
-            </div>
-          }
+            }
+          </div>
         }
       </div>
     </div>
-  </div>
+
+    <!-- Detalle del Curso -->
+    @if (selectedCurso()) {
+      <div class="content-card" style="margin-top: 24px;">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">assignment</span>
+            {{ selectedCurso()?.nombre }} - {{ selectedAsignatura() }}
+          </h3>
+          <button class="btn-icon" (click)="selectedCurso.set(null)">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="card-body">
+          <!-- Notas de Estudiantes -->
+          <h4 class="subsection-title">
+            <span class="material-icons">grade</span>
+            Notas de Alumnos ({{ anoEscolar }})
+          </h4>
+          
+          <div class="notas-table-wrapper">
+            <table class="notas-table">
+              <thead>
+                <tr>
+                  <th>Alumno</th>
+                  <th>Nota 1</th>
+                  <th>Nota 2</th>
+                  <th>Nota 3</th>
+                  <th>Nota 4</th>
+                  <th>Nota 5</th>
+                  <th>Nota 6</th>
+                  <th>Promedio</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (est of estudiantesOrdenados; track est.id) {
+                  @let notaEst = getNotaEstudiante(est.id!);
+                  <tr>
+                    <td class="alumno-cell">
+                      {{ est.apellido }} {{ est.nombre }}
+                    </td>
+                    @for ($index from 1 to 6) {
+                      <td>
+                        <input 
+                          type="number" 
+                          class="nota-input" 
+                          [value]="notaEst?.notas ? notaEst.notas['nota' + $index] : ''"
+                          min="1" 
+                          max="7"
+                          step="0.1"
+                          (blur)="guardarNota(est.id!, 'nota' + $index, $any($event.target).value)"
+                          [disabled]="notaEst?.cerrado"
+                        >
+                      </td>
+                    }
+                    <td class="promedio-cell">
+                      {{ notaEst?.nota_final || '-' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          
+          <p class="help-text">
+            <span class="material-icons">info</span>
+            Las notas se guardan automáticamente al salir del campo. Cada curso tiene 6 notas anuales.
+          </p>
+        </div>
+      </div>
+    }
+  }
 </div>
 
 <!-- Asistencia Modal -->
@@ -236,8 +327,8 @@
           <label class="form-label">Curso</label>
           <select class="form-select" [(ngModel)]="asistenciaForm.cursoId" (change)="loadEstudiantesPorCurso()">
             <option value="">Seleccionar curso</option>
-            @for (curso of cursos(); track curso.id) {
-              <option [value]="curso.id">{{ curso.nombre }}</option>
+            @for (curso of cursosAsignados(); track curso.id) {
+              <option [value]="curso.id">{{ curso.nivel }} {{ curso.nombre }}</option>
             }
           </select>
         </div>
@@ -247,10 +338,10 @@
         </div>
         @if (estudiantes().length > 0) {
           <div class="students-list">
-            <label class="form-label">Estudiantes</label>
+            <label class="form-label">Estudiantes ({{ estudiantes().length }})</label>
             @for (est of estudiantes(); track est.id) {
               <div class="student-row">
-                <span class="student-name">{{ est.nombre }} {{ est.apellido }}</span>
+                <span class="student-name">{{ est.apellido }} {{ est.nombre }}</span>
                 <div class="attendance-buttons">
                   <button 
                     type="button"
@@ -299,14 +390,14 @@
           <label class="form-label">Curso</label>
           <select class="form-select" [(ngModel)]="evaluacionForm.cursoId">
             <option value="">Seleccionar curso</option>
-            @for (curso of cursos(); track curso.id) {
-              <option [value]="curso.id">{{ curso.nombre }}</option>
+            @for (curso of cursosAsignados(); track curso.id) {
+              <option [value]="curso.id">{{ curso.nivel }} {{ curso.nombre }}</option>
             }
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Materia</label>
-          <input type="text" class="form-input" [(ngModel)]="evaluacionForm.materia" placeholder="Ej: Matemáticas">
+          <label class="form-label">Asignatura</label>
+          <input type="text" class="form-input" [(ngModel)]="evaluacionForm.materia" [placeholder]="selectedAsignatura() || 'Ej: Matemáticas'">
         </div>
         <div class="form-group">
           <label class="form-label">Título</label>
@@ -351,7 +442,7 @@
           <select class="form-select" [(ngModel)]="anotacionForm.estudianteId">
             <option value="">Seleccionar estudiante</option>
             @for (est of estudiantes(); track est.id) {
-              <option [value]="est.id">{{ est.nombre }} {{ est.apellido }}</option>
+              <option [value]="est.id">{{ est.apellido }} {{ est.nombre }}</option>
             }
           </select>
         </div>
@@ -410,8 +501,8 @@
           <label class="form-label">Curso</label>
           <select class="form-select" [(ngModel)]="reunionForm.cursoId">
             <option value="">Seleccionar curso</option>
-            @for (curso of cursos(); track curso.id) {
-              <option [value]="curso.id">{{ curso.nombre }}</option>
+            @for (curso of cursosAsignados(); track curso.id) {
+              <option [value]="curso.id">{{ curso.nivel }} {{ curso.nombre }}</option>
             }
           </select>
         </div>
