@@ -1,5 +1,5 @@
-// URL de la API - Backend en Render
+// URL de la API - Cloudflare Worker (hace proxy a Render)
 export const environment = {
   production: true,
-  apiUrl: 'https://gestion-estuduantil.onrender.com'
+  apiUrl: '/api'
 };
