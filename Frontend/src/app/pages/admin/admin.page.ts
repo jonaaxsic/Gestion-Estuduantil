@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Usuario, Estudiante, Curso, Recordatorio, AsignacionDocente } from '../../shared/models';
 
 @Component({
@@ -17,6 +18,7 @@ import { Usuario, Estudiante, Curso, Recordatorio, AsignacionDocente } from '../
 export class AdminPage implements OnInit {
   private readonly api = inject(ApiService);
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
   private readonly snackBar = inject(MatSnackBar);
 
   // Data signals

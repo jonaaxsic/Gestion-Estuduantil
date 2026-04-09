@@ -11,6 +11,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Curso, Evaluacion, Anotacion, Estudiante, Asistencia, Reunione, Recordatorio, AsignacionDocente, Nota } from '../../shared/models';
 
 interface CursoAsignado extends Curso {
@@ -39,6 +40,7 @@ interface CursoAsignado extends Curso {
 export class DashboardDocentePage implements OnInit {
   private readonly api = inject(ApiService);
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
   
   // Cursos asignados al docente
   cursosAsignados = signal<CursoAsignado[]>([]);

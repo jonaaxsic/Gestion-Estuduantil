@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Estudiante, Asistencia, Evaluacion, Anotacion, Curso, Recordatorio, Reunione, Nota } from '../../shared/models';
 
 @Component({
@@ -16,6 +17,7 @@ import { Estudiante, Asistencia, Evaluacion, Anotacion, Curso, Recordatorio, Reu
 export class DashboardApoderadoPage implements OnInit {
   private readonly api = inject(ApiService);
   readonly auth = inject(AuthService);
+  readonly theme = inject(ThemeService);
   
   estudiante = signal<Estudiante | null>(null);
   asistencia = signal<Asistencia[]>([]);

@@ -178,7 +178,7 @@
   padding-top: 18px;
   border-top: 1px solid var(--border);
   position: relative;
-  z-index: 10;
+  z-index: 100;
 }
 
 .login-footer p {
@@ -191,6 +191,10 @@
   color: var(--brand);
   font-weight: 700;
   text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  position: relative;
+  z-index: 101;
 }
 
 .login-footer a:hover { text-decoration: underline; }
