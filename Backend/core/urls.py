@@ -7,85 +7,87 @@ from . import views
 
 urlpatterns = [
     # Authentication
-    path("auth/login", views.login_view, name="login"),
+    path("auth/login/", views.login_view, name="login"),
     # Usuarios
-    path("usuarios", views.UsuarioList.as_view(), name="usuario-list"),
-    path("usuarios/<str:pk>", views.UsuarioDetail.as_view(), name="usuario-detail"),
+    path("usuarios/", views.UsuarioList.as_view(), name="usuario-list"),
+    path("usuarios/<str:pk>/", views.UsuarioDetail.as_view(), name="usuario-detail"),
     # Estudiantes
-    path("estudiantes", views.EstudianteList.as_view(), name="estudiante-list"),
+    path("estudiantes/", views.EstudianteList.as_view(), name="estudiante-list"),
     path(
-        "estudiantes/<str:pk>",
+        "estudiantes/<str:pk>/",
         views.EstudianteDetail.as_view(),
         name="estudiante-detail",
     ),
     # Cursos
-    path("cursos", views.CursoList.as_view(), name="curso-list"),
-    path("cursos/<str:pk>", views.CursoDetail.as_view(), name="curso-detail"),
+    path("cursos/", views.CursoList.as_view(), name="curso-list"),
+    path("cursos/<str:pk>/", views.CursoDetail.as_view(), name="curso-detail"),
     # Asistencia
-    path("asistencia", views.AsistenciaList.as_view(), name="asistencia-list"),
-    path("asistencia/bulk", views.AsistenciaBulk.as_view(), name="asistencia-bulk"),
+    path("asistencia/", views.AsistenciaList.as_view(), name="asistencia-list"),
+    path("asistencia/bulk/", views.AsistenciaBulk.as_view(), name="asistencia-bulk"),
     path(
-        "asistencia/<str:pk>",
+        "asistencia/<str:pk>/",
         views.AsistenciaDetail.as_view(),
         name="asistencia-detail",
     ),
     # Evaluaciones
-    path("evaluaciones", views.EvaluacionList.as_view(), name="evaluacion-list"),
+    path("evaluaciones/", views.EvaluacionList.as_view(), name="evaluacion-list"),
     path(
-        "evaluaciones/<str:pk>",
+        "evaluaciones/<str:pk>/",
         views.EvaluacionDetail.as_view(),
         name="evaluacion-detail",
     ),
     # Anotaciones
-    path("anotaciones", views.AnotacionList.as_view(), name="anotacion-list"),
+    path("anotaciones/", views.AnotacionList.as_view(), name="anotacion-list"),
     path(
-        "anotaciones/<str:pk>", views.AnotacionDetail.as_view(), name="anotacion-detail"
+        "anotaciones/<str:pk>/",
+        views.AnotacionDetail.as_view(),
+        name="anotacion-detail",
     ),
     # Reuniones
-    path("reuniones", views.ReunioneList.as_view(), name="reunion-list"),
-    path("reuniones/<str:pk>", views.ReunioneDetail.as_view(), name="reunion-detail"),
+    path("reuniones/", views.ReunioneList.as_view(), name="reunion-list"),
+    path("reuniones/<str:pk>/", views.ReunioneDetail.as_view(), name="reunion-detail"),
     # Apoderados
-    path("apoderados", views.ApoderadoList.as_view(), name="apoderado-list"),
+    path("apoderados/", views.ApoderadoList.as_view(), name="apoderado-list"),
     path(
-        "apoderados/<str:pk>", views.ApoderadoDetail.as_view(), name="apoderado-detail"
+        "apoderados/<str:pk>/", views.ApoderadoDetail.as_view(), name="apoderado-detail"
     ),
     # Recordatorios
-    path("recordatorios", views.RecordatorioList.as_view(), name="recordatorio-list"),
+    path("recordatorios/", views.RecordatorioList.as_view(), name="recordatorio-list"),
     path(
-        "recordatorios/<str:pk>",
+        "recordatorios/<str:pk>/",
         views.RecordatorioDetail.as_view(),
         name="recordatorio-detail",
     ),
     # Asignaciones Docente
     path(
-        "asignaciones-docente",
+        "asignaciones-docente/",
         views.AsignacionDocenteList.as_view(),
         name="asignacion-docente-list",
     ),
     path(
-        "asignaciones-docente/<str:pk>",
+        "asignaciones-docente/<str:pk>/",
         views.AsignacionDocenteDetail.as_view(),
         name="asignacion-docente-detail",
     ),
     # Cursos con asignaciones
     path(
-        "cursos-con-asignaciones",
+        "cursos-con-asignaciones/",
         views.cursos_con_asignaciones,
         name="cursos-con-asignaciones",
     ),
-    path("mis-cursos-docente", views.mis_cursos_docente, name="mis-cursos-docente"),
+    path("mis-cursos-docente/", views.mis_cursos_docente, name="mis-cursos-docente"),
     # Apoderados y Pupilos
     path(
-        "estudiantes-apoderado",
+        "estudiantes-apoderado/",
         views.estudiantes_apoderado,
         name="estudiantes-apoderado",
     ),
     path(
-        "estudiantes-sin-apoderado",
+        "estudiantes-sin-apoderado/",
         views.estudiantes_sin_apoderado,
         name="estudiantes-sin-apoderado",
     ),
     # Dashboards
-    path("dashboard/docente", views.dashboard_docente, name="dashboard-docente"),
-    path("dashboard/apoderado", views.dashboard_apoderado, name="dashboard-apoderado"),
+    path("dashboard/docente/", views.dashboard_docente, name="dashboard-docente"),
+    path("dashboard/apoderado/", views.dashboard_apoderado, name="dashboard-apoderado"),
 ]

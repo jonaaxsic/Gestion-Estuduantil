@@ -256,6 +256,15 @@ export class AdminPage implements OnInit {
   getDocentes(): Usuario[] {
     return this.usuarios().filter(u => u.rol === 'docente');
   }
+
+  // Nuevo método para formatear nombre de curso
+  getCursoNombreDisplay(cursoId: string | undefined): string {
+    if (!cursoId) return 'Sin curso';
+    const curso = this.cursos().find(c => c.id === cursoId);
+    if (!curso) return 'Sin curso';
+    // Formato: "6ºA - Básico" en lugar de "6° Básico 6° A"
+    return `${curso.nombre} - ${curso.nivel}`;
+  }
   
   loadUsuarios(): void {
     this.api.getUsuarios().subscribe({
