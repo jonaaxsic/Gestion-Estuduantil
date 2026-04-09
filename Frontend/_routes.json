@@ -1,0 +1,5 @@
+{
+  "routes": [
+    { "pattern": "/api/*", "zone_name": "gestionestudiantil.pages.dev" }
+  ]
+}

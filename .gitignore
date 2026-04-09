@@ -89,6 +89,8 @@ secreto*
 api_key*
 Backend.err*
 conexion-mongodb.txt*
+revision.md*
+
 
 # -------- DOCKER --------
 *.dockerignore
@@ -98,3 +100,4 @@ docker-compose.override.yml
 #--------otros-----
 Backend.err
 conexion-mongodb.txt
+
