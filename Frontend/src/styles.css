@@ -1,78 +1,89 @@
 /* ============================================================
    GESTIÓN ESTUDIANTIL – Design System
-   Paleta inspirada en Material You / Google Workspace
-   Modo claro y oscuro via body.light / body.dark (toggle manual)
+   Nueva paleta basada en PLAN_DE_TRABAJO.md
+   Modo claro y oscuro via body.light / body.dark
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
 
 /* ══════════════════════════════════════════════════════════
-   MODO CLARO  (body.light o :root por defecto)
-   Basado en imagen de referencia:
-   - Fondo página: azul muy claro #E8F0FE
-   - Cards: blanco puro
-   - Acento: azul Google #1A73E8
+   MODO CLARO  (Cloud Fresh)
+   Paleta propuesta en PLAN_DE_TRABAJO
    ══════════════════════════════════════════════════════════ */
 :root,
 body.light {
   color-scheme: light;
 
-  /* Acento principal – Azul Google */
-  --brand:        #1A73E8;
-  --brand-dark:   #1557B0;
-  --brand-light:  #E8F0FE;
-  --brand-muted:  #AECBFA;
+  /* Fondos - Azul muy pálido */
+  --bg-page:      #f0f4fc;
+  --bg-card:      #ffffff;
+  --bg-card-2:   #f7f9ff;
+  --bg-header:   #ffffff;
+  --bg-hover:     #ebf0ff;
+  --bg-subtle:   #f4f6fc;
 
-  /* Superficies */
-  --bg-page:      #E8F0FE;
-  --bg-card:      #FFFFFF;
-  --bg-header:    #FFFFFF;
-  --bg-hover:     #F1F5FE;
-  --bg-subtle:    #F8FAFF;
+  /* Acento principal – Azulíndigo vivo */
+  --brand:        #3d6fe8;
+  --brand-dark:   #2b58cc;
+  --brand-light:  #3d6fe815;
+  --brand-muted:  #3d6fe840;
+
+  /* Acento secundario – Coral/naranja */
+  --accent:       #ff6b47;
+  --accent-dark: #e5501e;
+  --accent-light: #ff6b4715;
 
   /* Bordes */
-  --border:       #DADCE0;
-  --border-light: #F1F3F4;
+  --border:       #dde3f0;
+  --border-light: #edf0fa;
 
   /* Texto */
-  --text-primary:   #202124;
-  --text-secondary: #5F6368;
-  --text-muted:     #9AA0A6;
-  --text-inverse:   #FFFFFF;
+  --text-primary:   #1a1f36;
+  --text-secondary: #5a6380;
+  --text-muted:    #9099b8;
+  --text-inverse:  #ffffff;
+  --text-accent:   #3d6fe8;
 
   /* Tabs */
-  --tab-active-bg:  #1A73E8;
-  --tab-active-txt: #FFFFFF;
-  --tab-hover-bg:   #E8F0FE;
-  --tab-hover-txt:  #1A73E8;
+  --tab-active-bg:  #3d6fe8;
+  --tab-active-txt: #ffffff;
+  --tab-hover-bg:   #ebf0ff;
+  --tab-hover-txt:  #3d6fe8;
 
-  /* Stat icons */
-  --stat-icon-1:    #1A73E8;
-  --stat-icon-2:    #8AB4F8;
-  --stat-icon-3:    #23C0DD;
-  --stat-icon-4:    #F9A825;
-  --stat-danger:    #EA4335;
+  /* Stat cards */
+  --stat-1: #3d6fe8;
+  --stat-2: #18b87a;
+  --stat-3: #f5a623;
+  --stat-4: #e8344a;
+
+  /* Stat icons (alias for backwards compatibility) */
+  --stat-icon-1: var(--stat-1);
+  --stat-icon-2: var(--stat-2);
+  --stat-icon-3: var(--stat-3);
+  --stat-icon-4: var(--stat-4);
 
   /* Botones */
-  --btn-primary-bg:    #1A73E8;
-  --btn-primary-txt:   #FFFFFF;
-  --btn-primary-hover: #1557B0;
-  --btn-secondary-bg:    #FFFFFF;
-  --btn-secondary-txt:   #202124;
-  --btn-secondary-border: #DADCE0;
-  --btn-secondary-hover:  #F1F5FE;
+  --btn-primary-bg:    #3d6fe8;
+  --btn-primary-txt:  #ffffff;
+  --btn-primary-hover: #2b58cc;
+  --btn-secondary-bg:  #ffffff;
+  --btn-secondary-txt: #1a1f36;
+  --btn-secondary-border: #dde3f0;
+  --btn-secondary-hover: #ebf0ff;
 
   /* Semánticos */
-  --success:  #34A853;
-  --warning:  #F9A825;
-  --danger:   #EA4335;
-  --info:     #23C0DD;
+  --success:  #18b87a;
+  --warning:  #f5a623;
+  --danger:   #e8344a;
+  --info:     #3d6fe8;
 
   /* Sombras */
-  --shadow-sm: 0 1px 3px rgba(60, 64, 67, 0.15), 0 1px 2px rgba(60, 64, 67, 0.10);
-  --shadow-md: 0 4px 8px rgba(60, 64, 67, 0.20), 0 2px 4px rgba(60, 64, 67, 0.12);
-  --shadow-lg: 0 12px 24px rgba(60, 64, 67, 0.22), 0 6px 12px rgba(60, 64, 67, 0.14);
+  --shadow-sm: 0 2px 8px rgba(61, 111, 232, 0.08);
+  --shadow-md: 0 4px 20px rgba(61, 111, 232, 0.12);
+  --shadow-lg: 0 12px 40px rgba(61, 111, 232, 0.15);
+  --shadow-accent: 0 4px 16px rgba(255, 107, 71, 0.2);
+  --shadow-brand: 0 4px 16px rgba(61, 111, 232, 0.25);
 
   /* Radios */
   --radius-sm: 12px;
@@ -81,64 +92,101 @@ body.light {
   --radius-xl: 24px;
   --radius-pill: 999px;
 
-  /* Toggle button */
-  --toggle-bg:     #E8F0FE;
-  --toggle-icon:   #1A73E8;
-  --toggle-border: #DADCE0;
+  /* Toggle */
+  --toggle-bg:     #ebf0ff;
+  --toggle-icon:   #3d6fe8;
+  --toggle-border: #dde3f0;
 }
 
 /* ══════════════════════════════════════════════════════════
-   MODO OSCURO  (body.dark)
-   Basado en imagen de referencia:
-   - Fondo página: gris muy oscuro #131314
-   - Cards: #1E1E1E / #2C2C2E
-   - Acento: azul vibrante #4285F4
+   MODO OSCURO  (Slate Neon)
+   Nueva paleta propuesta en PLAN_DE_TRABAJO
    ══════════════════════════════════════════════════════════ */
 body.dark {
   color-scheme: dark;
 
-  --brand:        #4285F4;
-  --brand-dark:   #2563EB;
-  --brand-light:  #1A2742;
-  --brand-muted:  #3B5998;
+  /* Fondos - Negro azulado profundo */
+  --bg-page:      #0f1117;
+  --bg-card:      #1a1d27;
+  --bg-card-2:    #222535;
+  --bg-header:    #13151f;
+  --bg-hover:     #252840;
+  --bg-subtle:    #1e2130;
 
-  --bg-page:      #131314;
-  --bg-card:      #1E1E1E;
-  --bg-header:    #1E1E1E;
-  --bg-hover:     #2A2A2A;
-  --bg-subtle:    #252525;
+  /* Acento principal – Verde esmeralda eléctrico */
+  --brand:        #00c896;
+  --brand-dark:  #00a87a;
+  --brand-light: #00c89615;
+  --brand-muted: #00c89640;
 
-  --border:       #3C3C3C;
-  --border-light: #2C2C2C;
+  /* Acento secundario – Violeta */
+  --accent:       #6d48fd;
+  --accent-dark: #6444e0;
+  --accent-light: #7c5cfc20;
 
-  --text-primary:   #E8EAED;
-  --text-secondary: #9AA0A6;
-  --text-muted:     #5F6368;
-  --text-inverse:   #131314;
+  /* Bordes */
+  --border:       #2e3148;
+  --border-light: #232640;
 
-  --tab-active-bg:  #4285F4;
-  --tab-active-txt: #FFFFFF;
-  --tab-hover-bg:   #1A2742;
-  --tab-hover-txt:  #8AB4F8;
+  /* Texto */
+  --text-primary:   #f0f2ff;
+  --text-secondary: #8b90b0;
+  --text-muted:     #555870;
+  --text-inverse:   #0f1117;
+  --text-accent:   #00c896;
 
-  --stat-icon-1:    #4285F4;
-  --stat-icon-2:    #8AB4F8;
-  --stat-icon-3:    #23C0DD;
-  --stat-icon-4:    #F9A825;
-  --stat-danger:    #EA4335;
+  /* Tabs */
+  --tab-active-bg:  #6d48fd;
+  --tab-active-txt: #ffffff;
+  --tab-hover-bg:   #6d48fd20;
+  --tab-hover-txt:  #a08cff;
 
-  --btn-primary-bg:    #4285F4;
-  --btn-primary-txt:   #FFFFFF;
-  --btn-primary-hover: #2563EB;
-  --btn-secondary-bg:    #2C2C2E;
-  --btn-secondary-txt:   #E8EAED;
-  --btn-secondary-border: #3C3C3C;
-  --btn-secondary-hover:  #3A3A3C;
+  /* Stat cards */
+  --stat-1: #6d48fd;
+  --stat-2: #00c896;
+  --stat-3: #f5a623;
+  --stat-4: #ff4d6a;
 
-  --success:  #34A853;
-  --warning:  #F9A825;
-  --danger:   #EA4335;
-  --info:     #23C0DD;
+  /* Stat icons (alias for backwards compatibility) */
+  --stat-icon-1: var(--stat-1);
+  --stat-icon-2: var(--stat-2);
+  --stat-icon-3: var(--stat-3);
+  --stat-icon-4: var(--stat-4);
+
+  /* Botones primarios con gradiente */
+  --btn-primary-bg:    linear-gradient(135deg, #6d48fd, #5b8def);
+  --btn-primary-txt:  #ffffff;
+  --btn-primary-hover: linear-gradient(135deg, #6444e0, #4a7ade);
+  --btn-secondary-bg:  #1e2130;
+  --btn-secondary-txt: #f0f2ff;
+  --btn-secondary-border: #2e3148;
+  --btn-secondary-hover: #252840;
+
+  /* Semánticos */
+  --success:  #00c896;
+  --warning:  #f5a623;
+  --danger:   #ff4d6a;
+  --info:     #4da6ff;
+
+  /* Sombras */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --shadow-accent: 0 4px 20px rgba(109, 72, 253, 0.3);
+  --shadow-brand: 0 4px 20px rgba(0, 200, 150, 0.2);
+
+  /* Radios */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Toggle */
+  --toggle-bg:     #1e2130;
+  --toggle-icon:   #00c896;
+  --toggle-border: #2e3148;
+}
 
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.55);
