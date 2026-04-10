@@ -139,6 +139,12 @@ class EvaluacionSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         print(f"DEBUG - Creating Evaluacion with data: {validated_data}")
+        # Normalizar fecha si viene en formato DD-MM-YYYY
+        fecha = validated_data.get("fecha")
+        if fecha and isinstance(fecha, str) and "-" in fecha:
+            parts = fecha.split("-")
+            if len(parts[0]) == 2 and len(parts[2]) == 4:  # DD-MM-YYYY
+                validated_data["fecha"] = f"{parts[2]}-{parts[1]}-{parts[0]}"
         # Asegurar que los campos opcionales tengan valores por defecto
         if not validated_data.get("titulo"):
             validated_data["titulo"] = "Sin título"
@@ -171,8 +177,13 @@ class AnotacionSerializer(serializers.Serializer):
     updated_at = serializers.DateTimeField(read_only=True)
 
     def create(self, validated_data):
-        # Si no hay fecha, usar la fecha actual
-        if not validated_data.get("fecha"):
+        # Normalizar fecha si viene en formato DD-MM-YYYY
+        fecha = validated_data.get("fecha")
+        if fecha and isinstance(fecha, str) and "-" in fecha:
+            parts = fecha.split("-")
+            if len(parts[0]) == 2 and len(parts[2]) == 4:  # DD-MM-YYYY
+                validated_data["fecha"] = f"{parts[2]}-{parts[1]}-{parts[0]}"
+        elif not fecha:
             from datetime import date
 
             validated_data["fecha"] = date.today().isoformat()
@@ -244,9 +255,9 @@ class ApoderadoSerializer(serializers.Serializer):
     updated_at = serializers.DateTimeField(read_only=True)
 
     def create(self, validated_data):
-        apoderado = Apoderado(validated_data)
-        empoderado.save()
-        return empoderado
+        apoderaDo = Apoderado(validated_data)
+        apoderaDo.save()
+        return apoderaDo
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():
@@ -274,6 +285,13 @@ class RecordatorioSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         print(f"DEBUG - Creating Recordatorio with data: {validated_data}")
+        # Normalizar fechas si vienen en formato DD-MM-YYYY
+        for campo in ["fecha", "fecha_limite"]:
+            val = validated_data.get(campo)
+            if val and isinstance(val, str) and "-" in val:
+                parts = val.split("-")
+                if len(parts[0]) == 2 and len(parts[2]) == 4:  # DD-MM-YYYY
+                    validated_data[campo] = f"{parts[2]}-{parts[1]}-{parts[0]}"
         # Asegurar valores por defecto
         if not validated_data.get("titulo"):
             validated_data["titulo"] = "Sin título"
