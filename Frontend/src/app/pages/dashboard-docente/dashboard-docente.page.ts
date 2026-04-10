@@ -50,6 +50,7 @@ export class DashboardDocentePage implements OnInit {
   estudiantes = signal<Estudiante[]>([]);
   evaluaciones = signal<Evaluacion[]>([]);
   anotaciones = signal<Anotacion[]>([]);
+  reuniones = signal<Reunione[]>([]);
   recordatorios = signal<Recordatorio[]>([]);
   asignacionesDocente = signal<AsignacionDocente[]>([]);
   
@@ -128,6 +129,7 @@ export class DashboardDocentePage implements OnInit {
     this.api.getEstudiantes().subscribe(data => this.estudiantes.set(data));
     this.api.getEvaluaciones().subscribe(data => this.evaluaciones.set(data));
     this.api.getAnotaciones().subscribe(data => this.anotaciones.set(data));
+    this.api.getReuniones().subscribe(data => this.reuniones.set(data));
     
     // Cargar recordatorios del usuario actual
     const userId = this.auth.user()?.id;

@@ -136,10 +136,18 @@
       <!-- Recordatorios -->
       <div class="content-card">
         <div class="card-header">
-          <h3 class="card-title">
-            <span class="material-icons">notifications</span>
-            Mis Recordatorios
-          </h3>
+          <div class="card-header-left">
+            <h3 class="card-title">
+              <span class="material-icons">notifications</span>
+              Mis Recordatorios
+            </h3>
+          </div>
+          <div class="card-header-right">
+            <button class="btn-new" (click)="openRecordatorioDialog()">
+              <span class="material-icons">add</span>
+              Nuevo
+            </button>
+          </div>
         </div>
         <div class="card-body">
           @if (recordatorios().length === 0) {
@@ -155,6 +163,7 @@
                 </div>
                 <div class="list-content">
                   <span class="title" [style.text-decoration]="rec.completada ? 'line-through' : 'none'">{{ rec.titulo }}</span>
+                  <span class="subtitle">{{ rec.descripcion || 'Sin descripción' }}</span>
                   <span class="subtitle">{{ rec.fecha_limite ? 'Para: ' + rec.fecha_limite : 'Sin fecha límite' }}</span>
                 </div>
                 <button class="btn-icon-small" (click)="toggleRecordatorioCompleted(rec)" title="Marcar como completada">
@@ -262,6 +271,10 @@
     @if (selectedCurso()) {
       <div class="content-card" style="margin-top: 24px;">
         <div class="card-header">
+          <button class="btn-back" (click)="selectedCurso.set(null)">
+            <span class="material-icons">arrow_back</span>
+            Volver a Cursos
+          </button>
           <h3 class="card-title">
             <span class="material-icons">assignment</span>
             {{ selectedCurso()?.nombre }} - {{ selectedAsignatura() }}
