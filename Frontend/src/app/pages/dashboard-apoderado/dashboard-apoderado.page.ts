@@ -258,11 +258,11 @@ export class DashboardApoderadoPage implements OnInit {
     
     const promedios = notasDelEstudiante
       .map(n => n.nota_final)
-      .filter(p => p !== undefined && p !== null && p > 0);
+      .filter((p): p is number => p !== undefined && p !== null && p > 0);
     
     if (promedios.length === 0) return 0;
     
-    const suma = promedios.reduce((acc, curr) => acc + curr, 0);
+    const suma = promedios.reduce((acc: number, curr: number) => acc + curr, 0);
     return suma / promedios.length;
   }
   
