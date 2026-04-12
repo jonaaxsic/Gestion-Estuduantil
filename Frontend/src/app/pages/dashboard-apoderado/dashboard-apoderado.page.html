@@ -428,6 +428,113 @@
     </div>
   </div>
   }
+  
+  <!-- Vista de Avisos -->
+  @if (activeSection() === 'avisos') {
+  <div class="avisos-view">
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons">campaign</span>
+          Avisos del Colegio
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="empty-state">
+          <span class="material-icons">info</span>
+          <p>No hay avisos disponibles</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+  
+  <!-- Vista de Solicitudes -->
+  @if (activeSection() === 'solicitudes') {
+  <div class="solicitudes-view">
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons">description</span>
+          Mis Solicitudes de Documentos
+        </h3>
+      </div>
+      <div class="card-body">
+        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+          Puede solicitar certificados a través de esta sección.
+          <br>Los documentos solicitados estarán disponibles para retiro en inspectoría.
+        </p>
+        <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn btn-primary">
+            <span class="material-icons">school</span>
+            Certificado de Alumno Regular
+          </button>
+          <button class="btn btn-primary">
+            <span class="material-icons">grade</span>
+            Certificado de Notas
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+  
+  <!-- Vista de Perfil -->
+  @if (activeSection() === 'perfil') {
+  <div class="perfil-view">
+    <div class="perfil-card">
+      <h3><span class="material-icons">person</span> Mi Perfil</h3>
+      <div class="perfil-readonly">
+        <label>Nombre completo</label>
+        <span>{{ auth.user()?.nombre }} {{ auth.user()?.apellido }}</span>
+      </div>
+      <div class="perfil-readonly">
+        <label>RUT</label>
+        <span>{{ auth.user()?.rut || 'Sin RUT' }}</span>
+      </div>
+      <div class="perfil-readonly">
+        <label>Email</label>
+        <span>{{ auth.user()?.email }}</span>
+      </div>
+      <div class="perfil-field">
+        <label>Teléfono</label>
+        <input type="tel" class="form-input" [value]="auth.user()?.telefono || ''" placeholder="Ingrese teléfono">
+      </div>
+      <div class="perfil-field">
+        <label>Dirección</label>
+        <input type="text" class="form-input" [value]="auth.user()?.direccion || ''" placeholder="Ingrese dirección">
+      </div>
+      <div style="margin-top: 16px;">
+        <button class="btn btn-primary">
+          <span class="material-icons">save</span>
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+    
+    <div class="perfil-card">
+      <h3><span class="material-icons">lock</span> Cambiar Contraseña</h3>
+      <div class="perfil-field">
+        <label>Contraseña Actual</label>
+        <input type="password" class="form-input" placeholder="Ingrese contraseña actual">
+      </div>
+      <div class="perfil-field">
+        <label>Nueva Contraseña</label>
+        <input type="password" class="form-input" placeholder="Ingrese nueva contraseña">
+      </div>
+      <div class="perfil-field">
+        <label>Confirmar Contraseña</label>
+        <input type="password" class="form-input" placeholder="Confirme nueva contraseña">
+      </div>
+      <div style="margin-top: 16px;">
+        <button class="btn btn-primary">
+          <span class="material-icons">lock</span>
+          Cambiar Contraseña
+        </button>
+      </div>
+    </div>
+  </div>
+  }
 </div>
 
 <!-- Recordatorio Modal -->

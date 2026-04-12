@@ -79,9 +79,10 @@ export class DashboardDocentePage implements OnInit {
   anoEscolar = new Date().getFullYear();
   
   // Asistencia signals
-  cursoTab = signal<'notas' | 'asistencia'>('notas');
+  cursoTab = signal<'notas' | 'asistencia' | 'reuniones' | 'anotaciones' | 'evaluaciones'>('notas');
   asistenciaHoy: Record<string, boolean> = {};
   fechaAsistenciaHoy = new Date().toISOString().split('T')[0];
+  fechaSeleccionada = signal<string>(new Date().toISOString().split('T')[0]);
   
   // Form data
   asistenciaForm = {
@@ -127,9 +128,6 @@ export class DashboardDocentePage implements OnInit {
   loadData(): void {
     this.api.getCursos().subscribe(data => this.cursos.set(data));
     this.api.getEstudiantes().subscribe(data => this.estudiantes.set(data));
-    this.api.getEvaluaciones().subscribe(data => this.evaluaciones.set(data));
-    this.api.getAnotaciones().subscribe(data => this.anotaciones.set(data));
-    this.api.getReuniones().subscribe(data => this.reuniones.set(data));
     
     // Cargar recordatorios del usuario actual
     const userId = this.auth.user()?.id;
@@ -141,6 +139,72 @@ export class DashboardDocentePage implements OnInit {
     this.api.getAsignacionesDocente().subscribe(data => {
       this.asignacionesDocente.set(data);
       this.cargarCursosAsignados();
+      // Luego de cargar los cursos asignados, cargar evaluaciones y anotaciones filtradas
+      this.cargarEvaluacionesFiltradas();
+      this.cargarAnotacionesFiltradas();
+      this.cargarReunionesFiltradas();
+    });
+  }
+
+  cargarEvaluacionesFiltradas(): void {
+    const cursoIds = this.cursosAsignados().map(c => c.id).filter(id => id);
+    if (cursoIds.length === 0) {
+      this.evaluaciones.set([]);
+      return;
+    }
+    
+    // Cargar evaluaciones para cada curso asignado
+    this.evaluaciones.set([]);
+    cursoIds.forEach(cursoId => {
+      this.api.getEvaluaciones(cursoId).subscribe(data => {
+        const current = this.evaluaciones();
+        const newData = data.filter(e => !current.some(existing => existing.id === e.id));
+        this.evaluaciones.set([...current, ...newData]);
+      });
+    });
+  }
+
+  cargarAnotacionesFiltradas(): void {
+    const cursoIds = this.cursosAsignados().map(c => c.id).filter(id => id);
+    if (cursoIds.length === 0) {
+      this.anotaciones.set([]);
+      return;
+    }
+    
+    // Obtener estudiantes de los cursos del docente
+    const estudiantesDelCurso = this.estudiantes().filter(e => e.curso_id && cursoIds.includes(e.curso_id));
+    const estudianteIds = estudiantesDelCurso.map(e => e.id).filter(id => id);
+    
+    if (estudianteIds.length === 0) {
+      this.anotaciones.set([]);
+      return;
+    }
+    
+    // Cargar anotaciones de esos estudiantes
+    this.anotaciones.set([]);
+    estudianteIds.forEach(estId => {
+      this.api.getAnotaciones(estId).subscribe(data => {
+        const current = this.anotaciones();
+        const newData = data.filter(a => !current.some(existing => existing.id === a.id));
+        this.anotaciones.set([...current, ...newData]);
+      });
+    });
+  }
+
+  cargarReunionesFiltradas(): void {
+    const cursoIds = this.cursosAsignados().map(c => c.id).filter(id => id);
+    if (cursoIds.length === 0) {
+      this.reuniones.set([]);
+      return;
+    }
+    
+    this.reuniones.set([]);
+    cursoIds.forEach(cursoId => {
+      this.api.getReuniones(cursoId).subscribe(data => {
+        const current = this.reuniones();
+        const newData = data.filter(r => !current.some(existing => existing.id === r.id));
+        this.reuniones.set([...current, ...newData]);
+      });
     });
   }
 
@@ -601,15 +665,18 @@ export class DashboardDocentePage implements OnInit {
     const curso = this.selectedCurso();
     if (!curso?.id) return;
     
+    // Usar la fecha seleccionada
+    const fecha = this.fechaSeleccionada();
+    
     // Inicializar todos como presentes por defecto
     this.estudiantes().forEach(est => {
       if (est.id) this.asistenciaHoy[est.id] = true;
     });
     
-    // Cargar asistencia del día de hoy para este curso
+    // Cargar asistencia de la fecha seleccionada para este curso
     this.api.getAsistencia({ 
       curso_id: curso.id,
-      fecha: this.fechaAsistenciaHoy
+      fecha: fecha
     }).subscribe(data => {
       // Si hay registros, actualizar el estado
       if (data && data.length > 0) {
@@ -620,6 +687,29 @@ export class DashboardDocentePage implements OnInit {
         });
       }
     });
+  }
+  
+  onFechaSeleccionadaChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.fechaSeleccionada.set(input.value);
+    this.loadAsistenciaCurso();
+  }
+  
+  // Obtener estadísticas de asistencia del mes
+  getEstadisticasAsistenciaMes(): { presentes: number; ausentes: number; porcentaje: number } {
+    const curso = this.selectedCurso();
+    if (!curso?.id) return { presentes: 0, ausentes: 0, porcentaje: 0 };
+    
+    const estudianteIds = this.estudiantes().filter(e => e.curso_id === curso.id).map(e => e.id);
+    const asistenciaMes = this.api.getAsistencia({ curso_id: curso.id }).subscribe;
+    
+    // Por ahora devolver datos básicos
+    const total = this.estudiantes().length;
+    const presentes = Object.values(this.asistenciaHoy).filter(v => v).length;
+    const ausentes = total - presentes;
+    const porcentaje = total > 0 ? Math.round((presentes / total) * 100) : 0;
+    
+    return { presentes, ausentes, porcentaje };
   }
   
   guardarAsistenciaHoy(): void {
@@ -666,5 +756,75 @@ export class DashboardDocentePage implements OnInit {
       return `${y}-${m}-${d}`;
     }
     return dateStr;
+  }
+  
+  // ============== Métodos para tabs del detalle del curso ==============
+  
+  // Reuniones
+  getReunionesDelCurso(): Reunione[] {
+    const cursoId = this.selectedCurso()?.id;
+    if (!cursoId) return [];
+    return this.reuniones().filter(r => r.curso_id === cursoId);
+  }
+  
+  esReunionProxima(fecha: string): boolean {
+    const hoy = new Date();
+    const fechaReunion = new Date(fecha);
+    const diffDays = Math.ceil((fechaReunion.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 7;
+  }
+  
+  esReunionPasada(fecha: string): boolean {
+    const hoy = new Date();
+    const fechaReunion = new Date(fecha);
+    return fechaReunion < hoy;
+  }
+  
+  // Evaluaciones
+  getEvaluacionesDelCurso(): Evaluacion[] {
+    const cursoId = this.selectedCurso()?.id;
+    if (!cursoId) return [];
+    return this.evaluaciones().filter(e => e.curso_id === cursoId);
+  }
+  
+  esEvaluacionProxima(fecha: string): boolean {
+    const hoy = new Date();
+    const fechaEval = new Date(fecha);
+    const diffDays = Math.ceil((fechaEval.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 7;
+  }
+  
+  esEvaluacionPasada(fecha: string): boolean {
+    const hoy = new Date();
+    const fechaEval = new Date(fecha);
+    return fechaEval < hoy;
+  }
+  
+  // Anotaciones
+  getAnotacionesDelCurso(): Anotacion[] {
+    const cursoId = this.selectedCurso()?.id;
+    if (!cursoId) return [];
+    const estudianteIds = this.estudiantes().filter(e => e.curso_id === cursoId).map(e => e.id);
+    return this.anotaciones().filter(a => a.estudiante_id && estudianteIds.includes(a.estudiante_id));
+  }
+  
+  getEstudiantesConAnotaciones(): Estudiante[] {
+    const cursoId = this.selectedCurso()?.id;
+    if (!cursoId) return [];
+    const estudianteIdsConAnot = [...new Set(this.anotaciones()
+      .filter(a => {
+        const est = this.estudiantes().find(e => e.id === a.estudiante_id);
+        return est?.curso_id === cursoId;
+      })
+      .map(a => a.estudiante_id))];
+    return this.estudiantes().filter(e => e.curso_id === cursoId && estudianteIdsConAnot.includes(e.id!));
+  }
+  
+  getAnotacionesPositivasEstudiante(estudianteId: string): number {
+    return this.anotaciones().filter(a => a.estudiante_id === estudianteId && a.tipo === 'positiva').length;
+  }
+  
+  getAnotacionesNegativasEstudiante(estudianteId: string): number {
+    return this.anotaciones().filter(a => a.estudiante_id === estudianteId && a.tipo === 'negativa').length;
   }
 }
