@@ -24,9 +24,9 @@ Aplicación web para la gestión académica institucional que permite digitaliza
 | Categoría         | Tecnología                      |
 | ----------------- | ------------------------------- |
 | **Frontend**      | Angular 19 + Angular Material   |
-| **Backend**       | Cloudflare Workers (Serverless) |
+| **Backend**       | Python + Django (Serverless) |
 | **Base de Datos** | MongoDB Atlas                   |
-| **Despliegue**    | Cloudflare Pages + Workers      |
+| **Despliegue**    | Cloudflare Pages Workers + Render   |
 | **Desarrollo**    | TypeScript, Python, Django      |
 
 ---
