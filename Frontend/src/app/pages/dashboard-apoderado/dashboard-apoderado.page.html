@@ -24,6 +24,62 @@
   </div>
 </div>
 
+<!-- Mobile Menu Overlay -->
+@if (showMobileMenu()) {
+  <div class="mobile-menu-overlay" (click)="closeMobileMenu()">
+    <div class="mobile-menu" (click)="$event.stopPropagation()">
+      <div class="mobile-menu-header">
+        <h3>Menú de Navegación</h3>
+        <button class="btn-icon" (click)="closeMobileMenu()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="mobile-menu-content">
+        <button class="mobile-menu-item" (click)="setSection('inicio'); closeMobileMenu()">
+          <span class="material-icons">home</span>
+          <span>Inicio</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setSection('notas'); closeMobileMenu()">
+          <span class="material-icons">grade</span>
+          <span>Notas</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setSection('asistencia'); closeMobileMenu()">
+          <span class="material-icons">check_circle</span>
+          <span>Asistencia</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setSection('anotaciones'); closeMobileMenu()">
+          <span class="material-icons">note</span>
+          <span>Anotaciones</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setSection('reuniones'); closeMobileMenu()">
+          <span class="material-icons">event</span>
+          <span>Reuniones</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setSection('avisos'); closeMobileMenu()">
+          <span class="material-icons">campaign</span>
+          <span>Avisos</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setSection('solicitudes'); closeMobileMenu()">
+          <span class="material-icons">description</span>
+          <span>Solicitudes</span>
+        </button>
+        <button class="mobile-menu-item" (click)="setSection('perfil'); closeMobileMenu()">
+          <span class="material-icons">person</span>
+          <span>Perfil</span>
+        </button>
+        <button class="mobile-menu-item" (click)="openRecordatorioDialog()">
+          <span class="material-icons">add_alert</span>
+          <span>Recordatorio</span>
+        </button>
+        <button class="mobile-menu-item logout" (click)="logout()">
+          <span class="material-icons">logout</span>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
 <!-- Tabs de Navegación Principal -->
 <div class="main-tabs">
   <button class="main-tab" [class.active]="activeSection() === 'inicio'" (click)="setSection('inicio')">
@@ -89,12 +145,12 @@
       <div class="info-card verde">
         <div class="card-header">
           <span class="material-icons">school</span>
-          <h2>Información del Pupilo</h2>
+          <h2>Información del Estudiante</h2>
         </div>
         <div class="card-body">
           <div class="info-row">
             <span class="label">Nombre:</span>
-            <span class="value">{{ estudiante()?.nombre }} {{ estudiante()?.apellido }}</span>
+            <span class="value student-name">{{ estudiante()?.nombre }} {{ estudiante()?.apellido }}</span>
           </div>
           <div class="info-row">
             <span class="label">RUT:</span>
@@ -102,8 +158,16 @@
           </div>
           <div class="info-row">
             <span class="label">Curso:</span>
-            <span class="value">{{ getCursoNombre(estudiante()?.curso_id) }}</span>
+            <span class="value curso-badge">{{ getCursoNombre(estudiante()?.curso_id) }}</span>
           </div>
+          @if (getPromedioGeneral() > 0) {
+            <div class="info-row">
+              <span class="label">Promedio:</span>
+              <span class="value" [class.promedio-bajo]="getPromedioGeneral() < 4" [class.promedio-medio]="getPromedioGeneral() >= 4 && getPromedioGeneral() < 5" [class.promedio-alto]="getPromedioGeneral() >= 5">
+                {{ getPromedioGeneral() | number:'1.1-1' }}
+              </span>
+            </div>
+          }
         </div>
       </div>
     } @else {

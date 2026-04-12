@@ -200,7 +200,13 @@ export class DashboardApoderadoPage implements OnInit {
     if (!cursoId) return 'Sin curso';
     const curso = this.cursos().find(c => c.id === cursoId);
     if (curso) {
-      return curso.nivel || curso.nombre || 'Sin curso';
+      // Mostrar nivel y nombre del curso ej: "6° Básico A"
+      const nivel = curso.nivel || '';
+      const nombre = curso.nombre || '';
+      if (nivel && nombre) {
+        return `${nivel} ${nombre}`;
+      }
+      return nivel || nombre || 'Sin curso';
     }
     return 'Sin curso';
   }
