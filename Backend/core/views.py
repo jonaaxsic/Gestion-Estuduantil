@@ -691,10 +691,14 @@ class ReunioneList(APIView, MongoObjectIdMixin):
         return Response(serializer.data)
 
     def post(self, request):
+        print(f"DEBUG - Reunione POST data: {request.data}")
         serializer = ReunioneSerializer(data=request.data)
         if serializer.is_valid():
+            print(f"DEBUG - Reunione validado: {serializer.validated_data}")
             serializer.save()
+            print(f"DEBUG - Reunione guardada: {serializer.data}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(f"DEBUG - Reunione errores: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

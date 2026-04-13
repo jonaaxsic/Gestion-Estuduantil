@@ -374,6 +374,13 @@
 }
 
 /* ══════════════════════════════════════════════════════════
+    TAB CONTENT
+    ══════════════════════════════════════════════════════════ */
+.tab-content {
+  padding-top: 20px;
+}
+
+/* ══════════════════════════════════════════════════════════
     STATS GRID
     ══════════════════════════════════════════════════════════ */
 .stats-grid {
@@ -1252,6 +1259,20 @@
 .asistencia-view {
   max-width: 800px;
   margin: 0 auto;
+  padding: 0;
+}
+
+.asistencia-view .content-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.asistencia-view .card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.asistencia-view .card-body {
   padding: 20px;
 }
 
@@ -1260,27 +1281,27 @@
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 16px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
 .porcentaje-circulo {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: var(--success);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 3px solid var(--bg-subtle);
+  border: 4px solid var(--bg-card);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .porcentaje-valor {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: white;
 }
@@ -1288,18 +1309,19 @@
 .porcentaje-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
+  min-width: 150px;
 }
 
 .porcentaje-label {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .porcentaje-alerta {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--danger);
   font-weight: 500;
 }
@@ -1311,15 +1333,19 @@
 .stats-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 10px;
+  padding: 14px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -1348,7 +1374,7 @@
 .asistencia-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
   overflow: hidden;
 }
@@ -1356,8 +1382,8 @@
 .asistencia-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 14px;
+  padding: 14px 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -1370,8 +1396,8 @@
 }
 
 .asistencia-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1380,7 +1406,7 @@
 }
 
 .asistencia-icon .material-icons {
-  font-size: 18px;
+  font-size: 20px;
   color: white;
 }
 
@@ -1508,23 +1534,31 @@
 /* Responsive móvil para asistencia */
 @media (max-width: 768px) {
   .asistencia-view {
-    padding: 12px;
+    padding: 0;
+  }
+  
+  .asistencia-view .card-body {
+    padding: 16px;
   }
   
   .asistencia-porcentaje {
     flex-direction: column;
     text-align: center;
-    padding: 14px;
+    padding: 16px;
     gap: 12px;
   }
   
   .porcentaje-circulo {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
   }
   
   .porcentaje-valor {
-    font-size: 1rem;
+    font-size: 1.1rem;
+  }
+  
+  .porcentaje-info {
+    min-width: 100%;
   }
   
   .stats-row {
@@ -1533,29 +1567,33 @@
   }
   
   .stat-item {
-    padding: 10px 8px;
+    padding: 12px 8px;
   }
   
   .stat-num {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   
   .stat-text {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
+  }
+  
+  .asistencia-list {
+    gap: 8px;
   }
   
   .asistencia-item {
-    padding: 10px 12px;
+    padding: 12px;
     gap: 10px;
   }
   
   .asistencia-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
   
   .asistencia-icon .material-icons {
-    font-size: 16px;
+    font-size: 18px;
   }
 }
 

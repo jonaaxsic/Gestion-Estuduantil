@@ -35,18 +35,18 @@ export interface TabItem {
   styles: [
     `
       .ge-tabs-wrapper {
-        padding: 16px 20px 0;
+        padding: 20px 24px 0;
         background: transparent;
       }
 
       .ge-tabs {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         background: var(--bg-card);
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
-        padding: 5px;
+        padding: 6px;
         overflow-x: auto;
         scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
@@ -63,11 +63,11 @@ export interface TabItem {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        padding: 9px 16px;
+        gap: 8px;
+        padding: 12px 20px;
         border: none;
         border-radius: var(--radius-sm);
-        font-size: 0.875rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: var(--text-secondary);
         background: transparent;
@@ -101,29 +101,33 @@ export interface TabItem {
 
       @media (max-width: 768px) {
         .ge-tabs-wrapper {
-          padding: 12px 14px 0;
+          padding: 16px 18px 0;
         }
 
         .ge-tabs {
-          padding: 4px;
-          gap: 2px;
+          padding: 5px;
+          gap: 3px;
           border-radius: var(--radius-sm);
         }
 
         .ge-tab {
-          padding: 9px 14px;
-          font-size: 0.82rem;
+          padding: 11px 16px;
+          font-size: 0.88rem;
         }
 
         .ge-tab-icon {
-          font-size: 15px;
+          font-size: 16px;
         }
       }
 
       @media (max-width: 480px) {
+        .ge-tabs-wrapper {
+          padding: 14px 16px 0;
+        }
+
         .ge-tab {
-          padding: 8px 11px;
-          font-size: 0.78rem;
+          padding: 10px 14px;
+          font-size: 0.85rem;
         }
 
         .ge-tab-icon {

@@ -102,6 +102,7 @@
     (tabChanged)="onTabChanged($event)">
   </app-shared-tabs>
   
+  <div class="tab-content">
   <!-- USUARIOS TAB -->
   @if (activeTab() === 'usuarios') {
     <!-- Stats -->
@@ -891,5 +892,6 @@
         </div>
       </form>
     </div>
+  </div>
   </div>
 }

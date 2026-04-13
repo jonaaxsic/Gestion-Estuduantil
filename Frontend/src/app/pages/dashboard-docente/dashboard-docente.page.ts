@@ -543,24 +543,29 @@ export class DashboardDocentePage implements OnInit {
     }
     
     this.saving.set(true);
-    this.api.createReunion({
+    const reunionData = {
       curso_id: this.reunionForm.cursoId,
       fecha: this.normalizeDate(this.reunionForm.fecha),
       hora: this.reunionForm.hora,
       lugar: this.reunionForm.lugar,
       descripcion: this.reunionForm.descripcion || '',
       notificacion_enviada: false
-    }).subscribe({
-      next: () => {
+    };
+    console.log('Enviando reunión:', reunionData);
+    
+    this.api.createReunion(reunionData).subscribe({
+      next: (response) => {
         this.saving.set(false);
+        console.log('Reunión creada:', response);
         this.closeModals();
         this.showSuccess('Reunión programada correctamente');
         this.loadData();
       },
       error: (err) => {
         this.saving.set(false);
-        console.error('Error al crear reunión:', err);
-        alert('Error al programar reunión. Verifique los datos e intente nuevamente.');
+        console.error('Error completo al crear reunión:', err);
+        const errorMsg = err?.error?.error || err?.error || err?.message || 'Error al programar reunión';
+        alert('Error al programar reunión: ' + errorMsg);
       }
     });
   }

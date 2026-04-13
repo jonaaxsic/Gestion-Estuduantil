@@ -84,6 +84,7 @@
 </app-shared-tabs>
 
 <div class="page-container">
+  <div class="tab-content">
   <!-- Solo mostrar tarjetas de info y stats en vista Inicio -->
   @if (activeSection() === 'inicio') {
   <div class="cards-row">
@@ -665,3 +666,4 @@
     {{ successMessage() }}
   </div>
 }
+</div>

@@ -68,6 +68,11 @@
    padding-top: 20px;
 }
 
+/* ── TAB CONTENT ────────────────────────────────────────── */
+.tab-content {
+  padding-top: 20px;
+}
+
 /* ── STATS GRID ─────────────────────────────────────────── */
 .stats-grid {
   display: grid;

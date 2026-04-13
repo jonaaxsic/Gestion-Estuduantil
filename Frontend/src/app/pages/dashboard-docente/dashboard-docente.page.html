@@ -76,6 +76,7 @@
     (tabChanged)="onDocenteTabChanged($event)">
   </app-shared-tabs>
 
+  <div class="tab-content">
   <!-- Dashboard View -->
   @if (activeView() === 'dashboard') {
     <!-- Stats -->
@@ -1079,3 +1080,4 @@
     {{ successMessage() }}
   </div>
 }
+</div>
