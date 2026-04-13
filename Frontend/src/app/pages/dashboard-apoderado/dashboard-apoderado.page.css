@@ -257,9 +257,9 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-    MAIN TABS / TABS NAV
+    MAIN TABS / TABS NAV - Unificado con admin
     ══════════════════════════════════════════════════════════ */
-.tabs, .main-tabs {
+.tabs {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -273,7 +273,7 @@
   scrollbar-color: var(--border) transparent;
 }
 
-.tab, .main-tab {
+.tab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -294,18 +294,70 @@
   font-family: inherit;
 }
 
-.tab:hover, .main-tab:hover {
+.tab:hover {
   background: var(--tab-hover-bg);
   color: var(--tab-hover-txt);
 }
 
-.tab.active, .main-tab.active {
+.tab.active {
   background: var(--tab-active-bg);
   color: var(--tab-active-txt);
   box-shadow: var(--shadow-sm);
 }
 
-.tab .material-icons, .main-tab .material-icons {
+.tab .material-icons {
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+/* Alias para compatibilidad con main-tabs */
+.main-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  background: var(--bg-card);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.main-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1;
+  vertical-align: middle;
+  font-family: inherit;
+}
+
+.main-tab:hover {
+  background: var(--tab-hover-bg);
+  color: var(--tab-hover-txt);
+}
+
+.main-tab.active {
+  background: var(--tab-active-bg);
+  color: var(--tab-active-txt);
+  box-shadow: var(--shadow-sm);
+}
+
+.main-tab .material-icons {
   font-size: 18px;
   vertical-align: middle;
 }
@@ -788,16 +840,22 @@
   .stat-icon .material-icons { font-size: 20px; }
   
   .tabs {
-    padding: 4px;
-    gap: 4px;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    padding: 8px;
+    justify-content: flex-start;
   }
   
   .tab {
-    padding: 8px 12px;
-    font-size: 0.8rem;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    min-width: auto;
+    flex: 0 0 auto;
   }
   
-  .tab .material-icons { font-size: 16px; }
+  .tab .material-icons { display: none; }
 }
 
 .mobile-menu {
