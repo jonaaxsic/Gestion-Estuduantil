@@ -176,6 +176,21 @@ class AsignacionDocenteList(APIView, MongoObjectIdMixin):
             # Guardar directamente en MongoDB
             from core.models import AsignacionDocente
 
+            # Verificar si ya existe una asignación para el mismo docente y curso
+            existing = AsignacionDocente.find_one(
+                {
+                    "docente_id": data.get("docente_id"),
+                    "curso_id": data.get("curso_id"),
+                    "activo": True,
+                }
+            )
+
+            if existing:
+                return Response(
+                    {"error": "El docente ya está asignado a este curso"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             print(f"DEBUG - Creando AsignacionDocente...")
             asignacion = AsignacionDocente(
                 {
@@ -816,14 +831,21 @@ def dashboard_docente(request):
         )
 
     try:
-        # 1. Obtener cursos asignados al docente
+        # 1. Obtener cursos asignados al docente (sin duplicados)
         asignaciones = AsignacionDocente.find({"docente_id": docente_id})
-        curso_ids = [a.curso_id for a in asignaciones if a.curso_id]
+        curso_ids = list(
+            set([a.curso_id for a in asignaciones if a.curso_id])
+        )  # Eliminar duplicados
 
-        # 2. Obtener datos de cursos
+        # 2. Obtener datos de cursos (sin duplicados)
         cursos = []
+        cursos_ya_agregados = (
+            set()
+        )  # Para evitar duplicados en caso de que curso_ids tenga duplicados
         total_estudiantes = 0
         for cid in curso_ids:
+            if cid in cursos_ya_agregados:
+                continue
             curso = Curso.find_one({"_id": ObjectId(cid)})
             if curso:
                 # Contar estudiantes del curso
@@ -836,6 +858,7 @@ def dashboard_docente(request):
                         "estudiantes_count": estudiantes_count,
                     }
                 )
+                cursos_ya_agregados.add(cid)
                 total_estudiantes += estudiantes_count
 
         # 3. Obtener evaluaciones próximas (próximos 7 días)
@@ -1065,17 +1088,21 @@ def mis_cursos_docente(request):
     if not asignaciones:
         return Response([])
 
-    # Obtener los cursos
-    cursos_ids = [asig.curso_id for asig in asignaciones]
+    # Obtener los cursos (sin duplicados)
+    cursos_ids = list(set([asig.curso_id for asig in asignaciones]))
+    cursos_ya_agregados = set()
     cursos = []
 
     for asig in asignaciones:
+        if asig.curso_id in cursos_ya_agregados:
+            continue
         curso = Curso.find_one({"_id": asig.curso_id})
         if curso:
             curso_data = CursoSerializer(curso).data
             curso_data["asignatura"] = asig.asignatura
             curso_data["asignacion_id"] = asig._id
             cursos.append(curso_data)
+            cursos_ya_agregados.add(asig.curso_id)
 
     return Response(cursos)
 

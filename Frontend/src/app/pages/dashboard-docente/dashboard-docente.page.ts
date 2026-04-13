@@ -337,8 +337,12 @@ export class DashboardDocentePage implements OnInit {
 
     const misAsignaciones = this.asignacionesDocente().filter(a => a.docente_id === docenteId);
     const cursos: CursoAsignado[] = [];
+    const cursosAgregados = new Set<string>(); // Evitar duplicados
 
     for (const asig of misAsignaciones) {
+      if (cursosAgregados.has(asig.curso_id!)) {
+        continue; // Skip if already added
+      }
       const curso = this.cursos().find(c => c.id === asig.curso_id);
       if (curso) {
         cursos.push({
@@ -346,6 +350,7 @@ export class DashboardDocentePage implements OnInit {
           asignatura: asig.asignatura,
           asignacion_id: asig.id
         });
+        cursosAgregados.add(asig.curso_id!);
       }
     }
 
