@@ -32,6 +32,11 @@ export class DashboardApoderadoPage implements OnInit {
   activeSection = signal<'inicio' | 'notas' | 'asistencia' | 'anotaciones' | 'reuniones' | 'avisos' | 'solicitudes' | 'perfil'>('inicio');
   anoEscolar = new Date().getFullYear();
   
+  // Formulario de solicitudes
+  solicitudTipo = '';
+  solicitudTelefono = '';
+  solicitudObservaciones = '';
+  
   // Modal state
   showRecordatorioModal = signal(false);
   showMobileMenu = signal(false);
@@ -97,6 +102,27 @@ export class DashboardApoderadoPage implements OnInit {
   setSection(section: 'inicio' | 'notas' | 'asistencia' | 'anotaciones' | 'reuniones' | 'avisos' | 'solicitudes' | 'perfil'): void {
     this.activeSection.set(section);
     this.closeMobileMenu();
+  }
+  
+  // Crear solicitud de certificado
+  crearSolicitud(): void {
+    if (!this.solicitudTipo) {
+      alert('Por favor seleccione un tipo de certificado');
+      return;
+    }
+    
+    if (!this.solicitudTelefono) {
+      alert('Por favor ingrese un teléfono de contacto');
+      return;
+    }
+    
+    // Aquí iría la llamada al API para crear la solicitud
+    alert('Solicitud enviada exitosamente. Puede retirar el documento en inspectoría.');
+    
+    // Limpiar formulario
+    this.solicitudTipo = '';
+    this.solicitudTelefono = '';
+    this.solicitudObservaciones = '';
   }
   
   toggleMobileMenu(): void {

@@ -217,6 +217,89 @@
   </div>
   }
   
+  <!-- Vista de Anotaciones con tarjetas -->
+  @if (activeSection() === 'anotaciones') {
+  <div class="anotaciones-view">
+    <!-- Stats de anotaciones -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon positivas">
+          <span class="material-icons">thumb_up</span>
+        </div>
+        <div class="stat-value">{{ getAnotacionesPositivas() }}</div>
+        <div class="stat-label">Anot. Positivas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon negativas">
+          <span class="material-icons">thumb_down</span>
+        </div>
+        <div class="stat-value">{{ getAnotacionesNegativas() }}</div>
+        <div class="stat-label">Anot. Negativas</div>
+      </div>
+    </div>
+    
+    <!-- Tarjeta de anotaciones positivas -->
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons" style="color: var(--success);">thumb_up</span>
+          Anotaciones Positivas
+        </h3>
+      </div>
+      <div class="card-body">
+        @if (anotaciones().filter(a => a.tipo === 'positiva').length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">check_circle</span>
+            <p>No hay anotaciones positivas</p>
+          </div>
+        } @else {
+          @for (anot of anotaciones().filter(a => a.tipo === 'positiva'); track anot.id) {
+            <div class="list-item">
+              <div class="list-icon positiva">
+                <span class="material-icons">thumb_up</span>
+              </div>
+              <div class="list-content">
+                <span class="title">{{ anot.descripcion }}</span>
+                <span class="subtitle">{{ anot.fecha }}</span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+    
+    <!-- Tarjeta de anotaciones negativas -->
+    <div class="content-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons" style="color: var(--danger);">thumb_down</span>
+          Anotaciones Negativas
+        </h3>
+      </div>
+      <div class="card-body">
+        @if (anotaciones().filter(a => a.tipo === 'negativa').length === 0) {
+          <div class="empty-state">
+            <span class="material-icons">check_circle</span>
+            <p>No hay anotaciones negativas</p>
+          </div>
+        } @else {
+          @for (anot of anotaciones().filter(a => a.tipo === 'negativa'); track anot.id) {
+            <div class="list-item">
+              <div class="list-icon negativa">
+                <span class="material-icons">thumb_down</span>
+              </div>
+              <div class="list-content">
+                <span class="title">{{ anot.descripcion }}</span>
+                <span class="subtitle">{{ anot.fecha }}</span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+  }
+  
   <!-- Vista de Notas -->
   @if (activeSection() === 'notas') {
   <div class="notas-view">
@@ -439,30 +522,73 @@
   </div>
   }
   
-  <!-- Vista de Solicitudes -->
+  <!-- Vista de Solicitudes con formulario -->
   @if (activeSection() === 'solicitudes') {
   <div class="solicitudes-view">
     <div class="content-card">
       <div class="card-header">
         <h3 class="card-title">
           <span class="material-icons">description</span>
-          Mis Solicitudes de Documentos
+          Nueva Solicitud de Documentos
         </h3>
       </div>
       <div class="card-body">
-        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-          Puede solicitar certificados a través de esta sección.
-          <br>Los documentos solicitados estarán disponibles para retiro en inspectoría.
+        <p style="color: var(--text-muted); margin-bottom: 20px; text-align: center;">
+          Complete el formulario para solicitar certificados. 
+          <br>Los documentos estarán disponibles para retiro en inspectoría.
         </p>
-        <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-          <button class="btn btn-primary">
-            <span class="material-icons">school</span>
-            Certificado de Alumno Regular
-          </button>
-          <button class="btn btn-primary">
-            <span class="material-icons">grade</span>
-            Certificado de Notas
-          </button>
+        
+        <div class="form-group">
+          <label class="form-label">Tipo de Certificado</label>
+          <select class="form-select" [(ngModel)]="solicitudTipo">
+            <option value="">Seleccione un certificado...</option>
+            <option value="alumno_regular">Certificado de Alumno Regular</option>
+            <option value="notas">Certificado de Notas</option>
+            <option value="estudios">Certificado de Estudios</option>
+            <option value="conducta">Certificado de Conducta</option>
+            <option value="matricula">Certificado de Matrícula</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Nombre del Estudiante</label>
+          <input type="text" class="form-input" [value]="estudiante()?.nombre + ' ' + estudiante()?.apellido" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Nombre del Solicitante (Apoderado)</label>
+          <input type="text" class="form-input" [value]="auth.user()?.nombre + ' ' + auth.user()?.apellido" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Teléfono de Contacto</label>
+          <input type="tel" class="form-input" [(ngModel)]="solicitudTelefono" placeholder="Ingrese teléfono de contacto">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Observaciones (Opcional)</label>
+          <textarea class="form-textarea" [(ngModel)]="solicitudObservaciones" placeholder="Agregue alguna observación o motivo específico..."></textarea>
+        </div>
+        
+        <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" (click)="crearSolicitud()">
+          <span class="material-icons">send</span>
+          Crear Solicitud
+        </button>
+      </div>
+    </div>
+    
+    <!-- Lista de solicitudes anteriores -->
+    <div class="content-card" style="margin-top: 20px;">
+      <div class="card-header">
+        <h3 class="card-title">
+          <span class="material-icons">history</span>
+          Mis Solicitudes Anteriores
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="empty-state">
+          <span class="material-icons">folder_open</span>
+          <p>No hay solicitudes anteriores</p>
         </div>
       </div>
     </div>

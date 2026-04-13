@@ -261,8 +261,8 @@
   display: flex;
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  gap: 4px;
+  padding: 0 12px;
+  gap: 2px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -270,13 +270,13 @@
 .main-tab {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 20px;
+  gap: 6px;
+  padding: 12px 14px;
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1062,6 +1062,9 @@
 /* Vista de Perfil */
 .perfil-view {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .perfil-card {
@@ -1071,6 +1074,47 @@
   padding: 24px;
   max-width: 600px;
   margin: 0 auto;
+  width: 100%;
+}
+
+/* Estilos para campos de perfil */
+.perfil-readonly, .perfil-field {
+  margin-bottom: 16px;
+}
+
+.perfil-readonly label, .perfil-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.perfil-readonly span {
+  display: block;
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  padding: 10px 12px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+/* Título de sección en perfil */
+.perfil-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.perfil-card h3 .material-icons {
+  color: var(--brand);
 }
 
 .perfil-header {
