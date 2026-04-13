@@ -1,0 +1,18 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Ejecutar cada 10 minutos
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    # Permitir ejecución manual
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend
+        run: |
+          echo "Haciendo ping al backend..."
+          curl -s -o /dev/null -w "%{http_code}" https://gestion-estuduantil.onrender.com || true
+          echo "Ping completado"

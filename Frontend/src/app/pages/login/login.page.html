@@ -51,6 +51,13 @@
         </div>
       }
       
+      @if (slowConnectionWarning()) {
+        <div class="slow-connection-warning">
+          <span class="material-icons">info</span>
+          {{ slowConnectionWarning() }}
+        </div>
+      }
+      
       <button type="submit" class="btn btn-primary login-btn" [disabled]="auth.isLoading()">
         @if (auth.isLoading()) {
           <mat-spinner diameter="20"></mat-spinner>
