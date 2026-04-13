@@ -220,18 +220,40 @@ class ReunioneSerializer(serializers.Serializer):
     updated_at = serializers.DateTimeField(read_only=True)
 
     def create(self, validated_data):
-        print(f"DEBUG - Creating Reunione with data: {validated_data}")
-        # Valores por defecto
-        if not validated_data.get("lugar"):
-            validated_data["lugar"] = "Por definir"
-        if not validated_data.get("notificacion_enviada"):
-            validated_data["notificacion_enviada"] = False
-        # Convertir hora a string si es necesario
-        if validated_data.get("hora") and not isinstance(validated_data["hora"], str):
-            validated_data["hora"] = str(validated_data["hora"])
-        reunion = Reunione(validated_data)
-        reunion.save()
-        return reunion
+        from core.database import is_connected
+        from core.database import get_collection
+
+        # Verificar conexión a MongoDB
+        if not is_connected():
+            raise serializers.ValidationError(
+                "No hay conexión a la base de datos. Verifica la configuración de MongoDB."
+            )
+
+        try:
+            # Verificar que la colección existe y está accesible
+            test_collection = get_collection("reuniones")
+            # Verificar que podemos hacer una operación simple
+            test_collection.find_one({})
+
+            # Valores por defecto
+            if not validated_data.get("lugar"):
+                validated_data["lugar"] = "Por definir"
+            if not validated_data.get("notificacion_enviada"):
+                validated_data["notificacion_enviada"] = False
+            # Convertir hora a string si es necesario
+            if validated_data.get("hora") and not isinstance(
+                validated_data["hora"], str
+            ):
+                validated_data["hora"] = str(validated_data["hora"])
+            reunion = Reunione(validated_data)
+            reunion.save()
+            return reunion
+        except Exception as e:
+            print(f"ERROR creating Reunione: {str(e)}")
+            import traceback
+
+            traceback.print_exc()
+            raise serializers.ValidationError(f"Error al guardar reunión: {str(e)}")
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():
