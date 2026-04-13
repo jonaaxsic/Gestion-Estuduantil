@@ -520,6 +520,8 @@
 .list-icon.negativa  { background: var(--danger); }
 .list-icon.completed { background: var(--success); }
 .list-icon.pending   { background: var(--warning); }
+.list-icon.presente  { background: var(--success); }
+.list-icon.falta     { background: var(--danger); }
 
 .list-content {
   flex: 1;
@@ -554,6 +556,13 @@
   margin-bottom: 12px;
   opacity: 0.4;
   display: block;
+}
+
+.empty-state .hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  opacity: 0.8;
 }
 
 /* ── MODAL ──────────────────────────────────────────────── */
@@ -1735,4 +1744,98 @@
 
 .panel-content {
   margin-top: 16px;
+}
+
+/* ── REUNIONES VIEW ─────────────────────────────────────────── */
+.reuniones-view {
+  padding: 20px;
+}
+
+.reunion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+
+.reunion-item:hover {
+  background: var(--bg-hover);
+  border-color: var(--brand-light);
+}
+
+.reunion-item.proxima {
+  border-left: 4px solid var(--brand);
+}
+
+.reunion-item.pasada {
+  opacity: 0.7;
+  border-left: 4px solid var(--text-muted);
+}
+
+.reunion-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--brand-light);
+}
+
+.reunion-icon .material-icons {
+  color: var(--brand);
+  font-size: 20px;
+}
+
+.reunion-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reunion-fecha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.reunion-lugar {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.reunion-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── SUBSECTION TITLE ───────────────────────────────────────── */
+.subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  padding: 12px 0 8px;
+  border-bottom: 1px solid var(--border-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.subsection-title .material-icons {
+  color: var(--brand);
+  font-size: 18px;
 }

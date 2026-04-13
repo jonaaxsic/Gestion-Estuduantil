@@ -59,6 +59,10 @@ export class DashboardDocentePage implements OnInit {
   // Notas de estudiantes
   notasEstudiantes = signal<Nota[]>([]);
   
+  // Asistencia del curso seleccionado
+  asistenciaDelCurso = signal<Asistencia[]>([]);
+  verAsistenciaCursoId = signal<string>('');
+  
   // Vista actual
   activeView = signal<'dashboard' | 'cursos' | 'asistencia' | 'evaluaciones' | 'anotaciones' | 'reuniones' | 'notas'>('dashboard');
   
@@ -87,6 +91,21 @@ export class DashboardDocentePage implements OnInit {
   
   onDocenteTabChanged(tabId: string): void {
     this.activeView.set(tabId as any);
+    
+    // Auto-show list panels when entering each tab
+    if (tabId === 'asistencia') {
+      this.showAsistenciaList.set(true);
+      this.loadEstudiantesIfNeeded();
+    } else if (tabId === 'evaluaciones') {
+      this.showEvaluacionesList.set(true);
+      this.loadEvaluacionesIfNeeded();
+    } else if (tabId === 'anotaciones') {
+      this.showAnotacionesList.set(true);
+      this.loadAnotacionesIfNeeded();
+    } else if (tabId === 'reuniones') {
+      this.showReunionesList.set(true);
+      this.loadReunionesIfNeeded();
+    }
   }
   
   // Panel states para mostrar listados con opción de crear
@@ -221,8 +240,14 @@ export class DashboardDocentePage implements OnInit {
     
     const cursoIds = this.cursosAsignados().map(c => c.id).filter(id => id);
     if (cursoIds.length > 0) {
-      // Cargar estudiantes del primer curso para el modal de asistencia
-      this.api.getEstudiantes(cursoIds[0]).subscribe(data => this.estudiantes.set(data));
+      // Cargar estudiantes de TODOS los cursos asignados
+      cursoIds.forEach(cursoId => {
+        this.api.getEstudiantes(cursoId).subscribe(data => {
+          const current = this.estudiantes();
+          const newData = data.filter(e => !current.some(existing => existing.id === e.id));
+          this.estudiantes.set([...current, ...newData]);
+        });
+      });
     }
   }
 
@@ -1000,6 +1025,47 @@ export class DashboardDocentePage implements OnInit {
         },
         error: () => alert('Error al eliminar reunión')
       });
+    }
+  }
+  
+  // Obtener nombre del estudiante por ID
+  getEstudianteNombre(estudianteId?: string): string {
+    if (!estudianteId) return 'Estudiante desconocido';
+    const estudiante = this.estudiantes().find(e => e.id === estudianteId);
+    if (estudiante) {
+      return `${estudiante.apellido} ${estudiante.nombre}`;
+    }
+    return 'Estudiante #' + estudianteId.substring(0, 8);
+  }
+  
+  // Obtener reuniones próximas (futuras)
+  getReunionesProximas(): Reunione[] {
+    const hoy = new Date();
+    return this.reuniones()
+      .filter(r => new Date(r.fecha) >= hoy)
+      .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+  }
+  
+  // Obtener reuniones pasadas
+  getReunionesPasadas(): Reunione[] {
+    const hoy = new Date();
+    return this.reuniones()
+      .filter(r => new Date(r.fecha) < hoy)
+      .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  }
+  
+  // Cargar asistencia por curso seleccionado
+  onVerAsistenciaCurso(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const cursoId = select.value;
+    this.verAsistenciaCursoId.set(cursoId);
+    
+    if (cursoId) {
+      this.api.getAsistencia({ curso_id: cursoId }).subscribe(data => {
+        this.asistenciaDelCurso.set(data);
+      });
+    } else {
+      this.asistenciaDelCurso.set([]);
     }
   }
 }

@@ -602,37 +602,72 @@
           <span class="material-icons">how_to_reg</span>
           Gestión de Asistencia
         </h2>
-        <button class="btn btn-primary" (click)="openAsistenciaDialog()">
-          <span class="material-icons">add</span>
-          Registrar Asistencia por Curso
-        </button>
       </div>
       
-      @if (showAsistenciaList()) {
-        <div class="panel-content">
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">
-                <span class="material-icons">how_to_reg</span>
-                Historial de Asistencia
-              </h3>
-              <button class="btn-icon" (click)="closeAsistenciaList()">
-                <span class="material-icons">close</span>
-              </button>
-            </div>
-            <div class="card-body">
-              @if (evaluaciones().length === 0) {
-                <div class="empty-state">
-                  <span class="material-icons">info</span>
-                  <p>No hay registros de asistencia</p>
-                </div>
-              } @else {
-                <p>Seleccione un curso en "Registrar Asistencia por Curso" para ver y gestionar la asistencia.</p>
+      <!-- Selector de curso para ver asistencia -->
+      <div class="content-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">class</span>
+            Seleccionar Curso
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Curso</label>
+            <select class="form-select" (change)="onVerAsistenciaCurso($event)">
+              <option value="">Seleccione un curso...</option>
+              @for (curso of cursosAsignados(); track curso.id) {
+                <option [value]="curso.id">{{ curso.nivel }} {{ curso.nombre }} - {{ curso.asignatura }}</option>
               }
-            </div>
+            </select>
           </div>
         </div>
-      }
+      </div>
+      
+      <!-- Tarjeta de Información de Asistencia con botón integrado -->
+      <div class="content-card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">how_to_reg</span>
+            Asistencia Registrada
+          </h3>
+          <button class="btn-new" (click)="openAsistenciaDialog()">
+            <span class="material-icons">add</span>
+            Registrar Asistencia
+          </button>
+        </div>
+        <div class="card-body">
+          @if (!verAsistenciaCursoId()) {
+            <div class="empty-state">
+              <span class="material-icons">info</span>
+              <p>Seleccione un curso para ver la asistencia</p>
+              <p class="hint">Use el selector de arriba para elegir un curso</p>
+            </div>
+          } @else if (asistenciaDelCurso().length === 0) {
+            <div class="empty-state">
+              <span class="material-icons">check_circle</span>
+              <p>No hay registros de asistencia para este curso</p>
+              <p class="hint">Use el botón "Registrar Asistencia" para crear uno</p>
+            </div>
+          } @else {
+            @for (asist of asistenciaDelCurso(); track asist.id) {
+              <div class="list-item">
+                <div class="list-icon" [class.presente]="asist.presente" [class.falta]="!asist.presente">
+                  <span class="material-icons">{{ asist.presente ? 'check_circle' : 'cancel' }}</span>
+                </div>
+                <div class="list-content">
+                  <span class="title">{{ getEstudianteNombre(asist.estudiante_id) }}</span>
+                  <span class="subtitle">{{ asist.fecha }} - {{ asist.presente ? 'Presente' : 'Ausente' }}</span>
+                  @if (asist.observacion) {
+                    <span class="subtitle">{{ asist.observacion }}</span>
+                  }
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
     </div>
   }
 
@@ -644,58 +679,53 @@
           <span class="material-icons">assignment</span>
           Gestión de Evaluaciones
         </h2>
-        <button class="btn btn-primary" (click)="openEvaluacionDialog()">
-          <span class="material-icons">add</span>
-          Crear Evaluación
-        </button>
       </div>
       
-      @if (showEvaluacionesList()) {
-        <div class="panel-content">
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">
-                <span class="material-icons">assignment</span>
-                Evaluaciones Creadas
-              </h3>
-              <button class="btn-icon" (click)="closeEvaluacionesList()">
-                <span class="material-icons">close</span>
-              </button>
-            </div>
-            <div class="card-body">
-              @if (evaluaciones().length === 0) {
-                <div class="empty-state">
-                  <span class="material-icons">info</span>
-                  <p>No hay evaluaciones registradas</p>
-                </div>
-              } @else {
-                @for (eval of evaluaciones(); track eval.id) {
-                  <div class="list-item">
-                    <div class="list-icon eval">
-                      <span class="material-icons">description</span>
-                    </div>
-                    <div class="list-content">
-                      <span class="title">{{ eval.titulo }}</span>
-                      <span class="subtitle">{{ eval.materia }} - {{ eval.fecha }} - {{ eval.ponderacion }}%</span>
-                      @if (eval.descripcion) {
-                        <span class="subtitle">{{ eval.descripcion }}</span>
-                      }
-                    </div>
-                    <div class="action-buttons">
-                      <button class="btn-icon edit" (click)="openEvaluacionEditDialog(eval)" title="Editar">
-                        <span class="material-icons">edit</span>
-                      </button>
-                      <button class="btn-icon delete" (click)="deleteEvaluacion(eval)" title="Eliminar">
-                        <span class="material-icons">delete</span>
-                      </button>
-                    </div>
-                  </div>
-                }
-              }
-            </div>
-          </div>
+      <!-- Tarjeta de Evaluaciones con botón integrado -->
+      <div class="content-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">assignment</span>
+            Evaluaciones Creadas
+          </h3>
+          <button class="btn-new" (click)="openEvaluacionDialog()">
+            <span class="material-icons">add</span>
+            Nueva Evaluación
+          </button>
         </div>
-      }
+        <div class="card-body">
+          @if (evaluaciones().length === 0) {
+            <div class="empty-state">
+              <span class="material-icons">assignment</span>
+              <p>No hay evaluaciones registradas</p>
+              <p class="hint">Use el botón "Nueva Evaluación" para crear una</p>
+            </div>
+          } @else {
+            @for (eval of evaluaciones(); track eval.id) {
+              <div class="list-item">
+                <div class="list-icon eval">
+                  <span class="material-icons">description</span>
+                </div>
+                <div class="list-content">
+                  <span class="title">{{ eval.titulo }}</span>
+                  <span class="subtitle">{{ eval.materia }} - {{ eval.fecha }} - {{ eval.ponderacion }}%</span>
+                  @if (eval.descripcion) {
+                    <span class="subtitle">{{ eval.descripcion }}</span>
+                  }
+                </div>
+                <div class="action-buttons">
+                  <button class="btn-icon edit" (click)="openEvaluacionEditDialog(eval)" title="Editar">
+                    <span class="material-icons">edit</span>
+                  </button>
+                  <button class="btn-icon delete" (click)="deleteEvaluacion(eval)" title="Eliminar">
+                    <span class="material-icons">delete</span>
+                  </button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
     </div>
   }
 
@@ -707,50 +737,45 @@
           <span class="material-icons">note_add</span>
           Gestión de Anotaciones
         </h2>
-        <button class="btn btn-primary" (click)="openAnotacionDialog()">
-          <span class="material-icons">add</span>
-          Nueva Anotación
-        </button>
       </div>
       
-      @if (showAnotacionesList()) {
-        <div class="panel-content">
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">
-                <span class="material-icons">note_add</span>
-                Anotaciones Creadas
-              </h3>
-              <button class="btn-icon" (click)="closeAnotacionesList()">
-                <span class="material-icons">close</span>
-              </button>
-            </div>
-            <div class="card-body">
-              @if (anotaciones().length === 0) {
-                <div class="empty-state">
-                  <span class="material-icons">info</span>
-                  <p>No hay anotaciones registradas</p>
-                </div>
-              } @else {
-                @for (anot of anotaciones(); track anot.id) {
-                  <div class="list-item">
-                    <div class="list-icon" [class.positiva]="anot.tipo === 'positiva'" [class.negativa]="anot.tipo === 'negativa'">
-                      <span class="material-icons">{{ anot.tipo === 'positiva' ? 'thumb_up' : 'thumb_down' }}</span>
-                    </div>
-                    <div class="list-content">
-                      <span class="title">{{ anot.descripcion }}</span>
-                      <span class="subtitle">{{ anot.fecha }}</span>
-                    </div>
-                    <button class="btn-icon delete" (click)="deleteAnotacion(anot)" title="Eliminar">
-                      <span class="material-icons">delete</span>
-                    </button>
-                  </div>
-                }
-              }
-            </div>
-          </div>
+      <!-- Tarjeta de Anotaciones con botón integrado -->
+      <div class="content-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">note_add</span>
+            Anotaciones Creadas
+          </h3>
+          <button class="btn-new" (click)="openAnotacionDialog()">
+            <span class="material-icons">add</span>
+            Nueva Anotación
+          </button>
         </div>
-      }
+        <div class="card-body">
+          @if (anotaciones().length === 0) {
+            <div class="empty-state">
+              <span class="material-icons">note</span>
+              <p>No hay anotaciones registradas</p>
+              <p class="hint">Use el botón "Nueva Anotación" para crear una</p>
+            </div>
+          } @else {
+            @for (anot of anotaciones(); track anot.id) {
+              <div class="list-item">
+                <div class="list-icon" [class.positiva]="anot.tipo === 'positiva'" [class.negativa]="anot.tipo === 'negativa'">
+                  <span class="material-icons">{{ anot.tipo === 'positiva' ? 'thumb_up' : 'thumb_down' }}</span>
+                </div>
+                <div class="list-content">
+                  <span class="title">{{ anot.descripcion }}</span>
+                  <span class="subtitle">{{ anot.fecha }} - {{ getEstudianteNombre(anot.estudiante_id) }}</span>
+                </div>
+                <button class="btn-icon delete" (click)="deleteAnotacion(anot)" title="Eliminar">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            }
+          }
+        </div>
+      </div>
     </div>
   }
 
@@ -762,53 +787,73 @@
           <span class="material-icons">event</span>
           Gestión de Reuniones
         </h2>
-        <button class="btn btn-primary" (click)="openReunionDialog()">
-          <span class="material-icons">add</span>
-          Programar Reunión
-        </button>
       </div>
       
-      @if (showReunionesList()) {
-        <div class="panel-content">
-          <div class="content-card">
-            <div class="card-header">
-              <h3 class="card-title">
-                <span class="material-icons">event</span>
-                Reuniones Programadas
-              </h3>
-              <button class="btn-icon" (click)="closeReunionesList()">
-                <span class="material-icons">close</span>
-              </button>
-            </div>
-            <div class="card-body">
-              @if (reuniones().length === 0) {
-                <div class="empty-state">
-                  <span class="material-icons">info</span>
-                  <p>No hay reuniones programadas</p>
-                </div>
-              } @else {
-                @for (reunion of reuniones(); track reunion.id) {
-                  <div class="list-item">
-                    <div class="list-icon">
-                      <span class="material-icons">event</span>
-                    </div>
-                    <div class="list-content">
-                      <span class="title">{{ reunion.lugar }}</span>
-                      <span class="subtitle">{{ reunion.fecha }} - {{ reunion.hora }}</span>
-                      @if (reunion.descripcion) {
-                        <span class="subtitle">{{ reunion.descripcion }}</span>
-                      }
-                    </div>
-                    <button class="btn-icon delete" (click)="deleteReunion(reunion)" title="Eliminar">
-                      <span class="material-icons">delete</span>
-                    </button>
-                  </div>
-                }
-              }
-            </div>
-          </div>
+      <!-- Tarjeta de Reuniones Programadas con botón integrado -->
+      <div class="content-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="material-icons">event</span>
+            Reuniones Programadas
+          </h3>
+          <button class="btn-new" (click)="openReunionDialog()">
+            <span class="material-icons">add</span>
+            Nueva Reunión
+          </button>
         </div>
-      }
+        <div class="card-body">
+          @if (reuniones().length === 0) {
+            <div class="empty-state">
+              <span class="material-icons">event_busy</span>
+              <p>No hay reuniones programadas</p>
+              <p class="hint">Use el botón "Nueva Reunión" para crear una</p>
+            </div>
+          } @else {
+            <!-- Reuniones Próximas -->
+            @if (getReunionesProximas().length > 0) {
+              <h4 class="subsection-title">
+                <span class="material-icons">upcoming</span>
+                Próximas Reuniones
+              </h4>
+              @for (reunion of getReunionesProximas(); track reunion.id) {
+                <div class="reunion-item proxima">
+                  <div class="reunion-icon">
+                    <span class="material-icons">event</span>
+                  </div>
+                  <div class="reunion-info">
+                    <span class="reunion-fecha">{{ reunion.fecha }} - {{ reunion.hora }}</span>
+                    <span class="reunion-lugar">{{ reunion.lugar }}</span>
+                    @if (reunion.descripcion) {
+                      <span class="reunion-desc">{{ reunion.descripcion }}</span>
+                    }
+                  </div>
+                  <button class="btn-icon delete" (click)="deleteReunion(reunion)" title="Eliminar">
+                    <span class="material-icons">delete</span>
+                  </button>
+                </div>
+              }
+            }
+            <!-- Reuniones Pasadas -->
+            @if (getReunionesPasadas().length > 0) {
+              <h4 class="subsection-title">
+                <span class="material-icons">history</span>
+                Reuniones Pasadas
+              </h4>
+              @for (reunion of getReunionesPasadas(); track reunion.id) {
+                <div class="reunion-item pasada">
+                  <div class="reunion-icon">
+                    <span class="material-icons">history</span>
+                  </div>
+                  <div class="reunion-info">
+                    <span class="reunion-fecha">{{ reunion.fecha }} - {{ reunion.hora }}</span>
+                    <span class="reunion-lugar">{{ reunion.lugar }}</span>
+                  </div>
+                </div>
+              }
+            }
+          }
+        </div>
+      </div>
     </div>
   }
 </div>
