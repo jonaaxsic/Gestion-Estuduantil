@@ -206,6 +206,11 @@ class AsignacionDocenteList(APIView, MongoObjectIdMixin):
 
             print(f"DEBUG - GUARDADO OK! _id: {asignacion._id}")
 
+            # Invalidar caché de asignaciones
+            cache.delete("asignaciones_all")
+            if data.get("docente_id"):
+                cache.delete(f"asignaciones_docente_{data.get('docente_id')}")
+
             return Response(
                 {
                     "success": True,
@@ -248,9 +253,15 @@ class AsignacionDocenteDetail(APIView, MongoObjectIdMixin):
             return Response(
                 {"error": "Asignación no encontrada"}, status=status.HTTP_404_NOT_FOUND
             )
+        # Guardar docente_id antes de actualizar para invalidar cache
+        docente_id = asignacion.docente_id
         serializer = AsignacionDocenteSerializer(asignacion, data=request.data)
         if serializer.is_valid():
             serializer.save()
+            # Invalidar caché de asignaciones
+            cache.delete("asignaciones_all")
+            if docente_id:
+                cache.delete(f"asignaciones_docente_{docente_id}")
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -260,9 +271,17 @@ class AsignacionDocenteDetail(APIView, MongoObjectIdMixin):
             return Response(
                 {"error": "Asignación no encontrada"}, status=status.HTTP_404_NOT_FOUND
             )
+        # Guardar docente_id antes de desactivar para invalidar cache
+        docente_id = asignacion.docente_id
         # En lugar de eliminar, desactivamos
         asignacion.activo = False
         asignacion.save()
+
+        # Invalidar caché de asignaciones
+        cache.delete("asignaciones_all")
+        if docente_id:
+            cache.delete(f"asignaciones_docente_{docente_id}")
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
